@@ -465,22 +465,34 @@ const attackUnit = function (x, y, game) {
  * @param {GameState} game
  * @returns {GameState}
  */
-const spawnWeaponDrop = function (game) {
+/**
+ * Randomly place a data-cache on the grid.
+ * Fires every 5 turns.
+ * Accepts an optional random_fn so the function can be tested deterministically
+ * without relying on Math.random.
+ * @param {GameState} game
+ * @param {Function} [random_fn=Math.random]
+ * @returns {GameState}
+ */
+const spawnWeaponDrop = function (game, random_fn) {
+
+    // default to Math.random if no function is provided
+    const rand = random_fn || Math.random;
 
     if (game.turn_count % 5 !== 0) {
         return game;
     }
 
     const types = ["phishing", "malware", "zero_day", "overclock"];
-    const type = types[Math.floor(Math.random() * types.length)];
+    const type = types[Math.floor(rand() * types.length)]; // use injected random
 
     let x;
     let y;
     let tries = 0;
 
     do {
-        x = Math.floor(Math.random() * game.board_size);
-        y = Math.floor(Math.random() * game.board_size);
+        x = Math.floor(rand() * game.board_size);
+        y = Math.floor(rand() * game.board_size);
         tries += 1;
         if (tries > 60) {
             return game;
@@ -496,7 +508,7 @@ const spawnWeaponDrop = function (game) {
         ...game,
         weapon_drops: [
             ...game.weapon_drops,
-            { id: Date.now() + Math.random(), type: type, x: x, y: y }
+            { id: Date.now() + rand(), type: type, x: x, y: y }
         ]
     };
 };

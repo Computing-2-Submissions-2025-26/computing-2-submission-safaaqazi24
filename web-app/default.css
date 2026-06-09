@@ -276,6 +276,21 @@ main {
     margin-top: 1px;
 }
 
+/* icon sizing for asset images */
+.tile-icon {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+}
+
+/* dim agent icon when slowed by malware */
+.slowed-icon {
+    opacity: 0.45;
+    filter: sepia(1) hue-rotate(20deg);
+}
+
 /* agent tiles */
 .unit-p1 { background: #07111f; }
 .unit-p2 { background: #1a0707; }

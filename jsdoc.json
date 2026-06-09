@@ -1,12 +1,14 @@
-{
+﻿{
     "tags": {
         "allowUnknownTags": false
     },
     "source": {
         "include": [
-            "web-app/Module.js"
+            "web-app/Module.js",
+            "web-app/game-state.js",
+            "web-app/game-rules.js"
         ],
-        "includePattern": "\\.js$",
+        "includePattern": "\.js$",
         "excludePattern": "(node_modules/|docs)"
     },
     "plugins": [
@@ -31,9 +33,7 @@
         }
     },
     "docdash": {
-        "scripts": [
-            "custom.css"
-        ],
+        "scripts": ["custom.css"],
         "static": true,
         "sort": true,
         "collapse": false,

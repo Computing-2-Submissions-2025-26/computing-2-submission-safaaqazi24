@@ -1,0 +1,494 @@
+﻿/* ── Reset ───────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* visually hidden but readable by screen readers */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+:root {
+    --bg:          #060b10;
+    --surface:     #0c1520;
+    --surface2:    #111f30;
+    --border:      #1a2e42;
+    --cyan:        #00e5ff;
+    --yellow:      #ffe600;
+    --p1:          #3b9dff;
+    --p2:          #ff4d4d;
+    --green:       #39ff14;
+    --orange:      #ff8c00;
+    --text:        #b8ccd8;
+    --muted:       #7a9ab0;  /* bumped from #48687e – meets WCAG AA on dark bg */
+    --tile:        86px;
+    --font-mono:   "Courier New", "Consolas", monospace;
+}
+
+html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    min-height: 100vh;
+}
+
+/* subtle scanline overlay – gives the CRT feel without being distracting */
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.08) 2px,
+        rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 999;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+header {
+    padding: 16px 20px 10px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    text-align: center;
+}
+
+h1 {
+    font-size: 2rem;
+    letter-spacing: 8px;
+    color: var(--cyan);
+    text-shadow: 0 0 18px rgba(0,229,255,0.4), 0 0 40px rgba(0,229,255,0.15);
+    font-family: var(--font-mono);
+}
+
+.tagline {
+    color: var(--muted);
+    font-size: 0.78rem;
+    letter-spacing: 2px;
+    margin-top: 5px;
+}
+
+/* ── Status bar ──────────────────────────────────────────────────────────── */
+#status {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    min-height: 56px;
+}
+
+.player-status {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 16px;
+    border-right: 1px solid var(--border);
+    font-size: 0.8rem;
+    min-width: 140px;
+    transition: background 0.2s;
+}
+
+.player-status:last-child {
+    border-right: none;
+    border-left: 1px solid var(--border);
+    text-align: right;
+}
+
+.player-status.active-p1 { background: rgba(59,157,255,0.08); border-color: var(--p1); }
+.player-status.active-p2 { background: rgba(255,77,77,0.08);  border-color: var(--p2); }
+
+.core-hp {
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 1px;
+}
+
+.turn-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    font-size: 0.82rem;
+    letter-spacing: 2px;
+    color: var(--cyan);
+    gap: 2px;
+}
+
+.respawn-info {
+    font-size: 0.62rem;
+    color: var(--orange);
+    letter-spacing: 1px;
+}
+
+.winner-banner {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 12px;
+    font-size: 1rem;
+    letter-spacing: 3px;
+    color: var(--yellow);
+    text-shadow: 0 0 14px var(--yellow);
+}
+
+#restart-btn {
+    padding: 6px 16px;
+    background: var(--yellow);
+    color: #000;
+    border: none;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    cursor: pointer;
+}
+
+#restart-btn:hover { background: #fff200; }
+
+/* ── Flash message ───────────────────────────────────────────────────────── */
+#message {
+    text-align: center;
+    min-height: 22px;
+    padding: 3px 20px;
+    font-size: 0.78rem;
+    color: var(--cyan);
+    letter-spacing: 2px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+}
+
+/* ── Layout ──────────────────────────────────────────────────────────────── */
+main {
+    padding: 16px 20px;
+}
+
+.layout {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+/* ── Board ───────────────────────────────────────────────────────────────── */
+#board {
+    display: grid;
+    grid-template-columns: repeat(6, var(--tile));
+    grid-template-rows:    repeat(6, var(--tile));
+    gap: 3px;
+    flex-shrink: 0;
+    /* subtle circuit-board grid pattern on the background */
+    background:
+        linear-gradient(rgba(0,229,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.04) 1px, transparent 1px),
+        var(--bg);
+    background-size: calc(var(--tile) + 3px) calc(var(--tile) + 3px);
+    padding: 3px;
+    border: 1px solid var(--border);
+}
+
+/* ── Tiles ───────────────────────────────────────────────────────────────── */
+.tile {
+    width:  var(--tile);
+    height: var(--tile);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 3px;
+    position: relative;
+    transition: transform 0.08s, border-color 0.15s;
+    overflow: hidden;
+}
+
+.tile:hover:not(:disabled) {
+    transform: scale(1.04);
+    border-color: var(--cyan);
+    z-index: 2;
+}
+
+.tile:focus-visible {
+    outline: 2px solid var(--cyan);
+    outline-offset: -2px;
+}
+
+/* move-range highlight – small green corner dots */
+.in-range {
+    background: #061a0c;
+    border-color: #1a4a26;
+}
+
+.in-range::after {
+    content: "";
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 4px var(--green);
+}
+
+/* attackable targets pulse red */
+.attackable {
+    animation: pulse-red 0.9s infinite;
+}
+
+@keyframes pulse-red {
+    0%, 100% { border-color: var(--p2); }
+    50%       { border-color: #ff9999; box-shadow: 0 0 8px rgba(255,77,77,0.45); }
+}
+
+/* selected unit – yellow glow border */
+.selected {
+    border: 2px solid var(--yellow) !important;
+    box-shadow: inset 0 0 12px rgba(255,230,0,0.15), 0 0 8px rgba(255,230,0,0.3);
+}
+
+/* server tiles */
+.core-p1 { background: #060d1a; }
+.core-p2 { background: #1a0606; }
+
+.core-label {
+    font-size: 0.58rem;
+    letter-spacing: 3px;
+    color: var(--muted);
+    margin-top: 1px;
+}
+
+/* agent tiles */
+.unit-p1 { background: #07111f; }
+.unit-p2 { background: #1a0707; }
+
+.unit-label {
+    font-size: 0.6rem;
+    letter-spacing: 1px;
+    color: var(--muted);
+}
+
+.weapon-badge {
+    font-size: 0.58rem;
+    font-weight: bold;
+    padding: 1px 5px;
+    border-radius: 2px;
+    color: #000;
+    letter-spacing: 1px;
+}
+
+/* small HP bar under each agent */
+.unit-hp-bar {
+    width: 50px;
+    height: 3px;
+    background: #1a2a1a;
+    border-radius: 1px;
+    overflow: hidden;
+    margin-top: 1px;
+}
+
+.unit-hp-fill {
+    height: 100%;
+    border-radius: 1px;
+    transition: width 0.3s;
+}
+
+/* blinking dot on the active player's agent */
+.active-dot {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 5px var(--green);
+    animation: blink 1.1s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.2; }
+}
+
+/* HP bars on server tiles */
+.hp-bar-wrap {
+    width: 58px;
+    height: 4px;
+    background: #1a2a1a;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 2px;
+}
+
+.hp-bar {
+    height: 100%;
+    background: var(--green);
+    border-radius: 2px;
+    transition: width 0.3s;
+}
+
+.hp {
+    font-size: 0.62rem;
+    color: var(--muted);
+    letter-spacing: 1px;
+}
+
+/* weapon drop tiles */
+.weapon-drop {
+    background: #12100a;
+    border-color: #4a3a00;
+    animation: glow-cache 2s infinite;
+}
+
+@keyframes glow-cache {
+    0%, 100% { border-color: #4a3a00; }
+    50%       { border-color: var(--yellow); box-shadow: 0 0 8px rgba(255,230,0,0.3); }
+}
+
+.drop-label {
+    font-size: 0.6rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    margin-top: 2px;
+}
+
+/* firewall tiles – no hover, no cursor */
+.firewall {
+    background: #0d0200;
+    border-color: #4a1200;
+    cursor: not-allowed;
+    padding: 0;
+}
+
+.firewall:hover {
+    transform: none;
+    border-color: #4a1200;
+}
+
+/* ── Sidebar ─────────────────────────────────────────────────────────────── */
+#sidebar {
+    width: 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+#inventory,
+#legend {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 12px;
+}
+
+h3 {
+    font-size: 0.72rem;
+    letter-spacing: 3px;
+    color: var(--cyan);
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 6px;
+}
+
+.hint {
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 1.7;
+}
+
+.status-warn {
+    font-size: 0.7rem;
+    color: var(--orange);
+    border: 1px solid var(--orange);
+    padding: 4px 8px;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+}
+
+/* inventory buttons */
+.inventory-item {
+    width: 100%;
+    margin-bottom: 6px;
+    padding: 7px 8px;
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    text-align: left;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    transition: border-color 0.12s;
+}
+
+.inventory-item:hover { border-color: var(--cyan); }
+
+.inventory-item.active {
+    border: 1px solid var(--yellow);
+    box-shadow: 0 0 6px rgba(255,230,0,0.2);
+}
+
+.inv-badge {
+    display: inline-block;
+    padding: 1px 6px;
+    font-size: 0.65rem;
+    font-weight: bold;
+    color: #000;
+    border-radius: 2px;
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+}
+
+.inv-name  { font-size: 0.78rem; color: var(--text); }
+.inv-stats { font-size: 0.65rem; color: var(--muted); }
+
+/* legend list */
+#legend ul {
+    list-style: none;
+    padding: 0;
+}
+
+#legend li {
+    font-size: 0.72rem;
+    color: var(--muted);
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border);
+    line-height: 1.4;
+}
+
+#legend li:last-child { border-bottom: none; }
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 800px) {
+    :root { --tile: 58px; }
+
+    h1 { font-size: 1.4rem; letter-spacing: 4px; }
+
+    .layout {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #sidebar { width: 100%; max-width: 520px; }
+}

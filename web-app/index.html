@@ -1,9 +1,60 @@
-<!-- In HTML Comments are written like this -->
-<!-- They can all be removed for your apps -->
-<!doctype html> <!-- This first line tells browsers to expect modern standard html 5 -->
-<html lang="en-gb"> <!-- This is indicates the page is written in British English, useful for accessibility -->
-<meta charset="utf-8"> <!-- This indicates how the file is encoded. utf-8 is standard -->
-<title>Your Web-app Title</title> <!-- All pages need a title, this will be displayed in the browser's title bar -->
-<link rel="stylesheet" href="default.css"> <!-- Import style sheet – default.css -->
-<link rel="icon" href="./assets/favicon.png"> <!-- Import 'Favorites Icon' – favicon.png -->
-<script type="module" src="main.js"></script> <!-- Load the main script. Must be type="module". Have only one of these -->
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>NET//BREACH</title>
+    <link rel="stylesheet" href="./default.css">
+</head>
+<body>
+
+<header>
+    <h1>NET//BREACH</h1>
+    <p class="tagline">two rogue agents &nbsp;|&nbsp; one network &nbsp;|&nbsp; destroy the enemy server</p>
+</header>
+
+<div id="status" role="status" aria-live="polite"></div>
+<p id="message" role="alert" aria-live="assertive"></p>
+
+<main>
+    <div class="layout">
+
+        <section id="board" role="grid" aria-label="Network grid" aria-describedby="board-desc">
+            <p id="board-desc" class="sr-only">6 by 6 grid. Click your agent to select it, then click a tile to move or attack.</p>
+        </section>
+
+        <aside id="sidebar">
+
+            <div id="inventory">
+                <h3>EXPLOIT TOOLS</h3>
+                <p class="hint">Select your agent<br>to view loaded exploits.</p>
+            </div>
+
+            <div id="legend">
+                <h3>HOW TO PLAY</h3>
+                <ul>
+                    <li>Click your agent to select it</li>
+                    <li>Click an empty tile to <b>move</b></li>
+                    <li>Click enemy agent or server to <b>attack</b></li>
+                    <li>Walk over a cache to <b>pick up</b> exploits</li>
+                    <li>Firewalls block movement and ranged LOS</li>
+                    <li>Dead agents respawn after 3 turns</li>
+                    <li>Q / E &nbsp;or&nbsp; 1 / 2 / 3 &nbsp;&rarr; cycle weapon</li>
+                </ul>
+
+                <h3 style="margin-top:10px">EXPLOIT TYPES</h3>
+                <ul>
+                    <li><b style="color:#4a9fff">PNG</b> &nbsp;Ping &ndash; 1 dmg, range 1, unlimited</li>
+                    <li><b style="color:#ff8c00">PHI</b> &nbsp;Phishing &ndash; 2 dmg, steals weapon</li>
+                    <li><b style="color:#39ff14">MLW</b> &nbsp;Malware &ndash; 3 dmg, slows target</li>
+                    <li><b style="color:#ff2244">0-DAY</b> Zero-Day &ndash; 5 dmg, range 4, 1 use</li>
+                    <li><b style="color:#ffffff">OCK</b> &nbsp;Overclock &ndash; move 4 tiles, 1 use</li>
+                </ul>
+            </div>
+
+        </aside>
+    </div>
+</main>
+
+<script type="module" src="./main.js"></script>
+</body>
+</html>

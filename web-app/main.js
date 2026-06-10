@@ -1,8 +1,9 @@
-﻿import {
+import {
     createGame,
     getUnitAtPosition,
     selectUnit,
-    selectWeapon
+    selectWeapon,
+    WEAPONS
 } from "./game-state.js";
 
 import {
@@ -18,6 +19,13 @@ import {
 
 let game = createGame();
 
+// keeps the last 5 actions for the comms log panel
+let game_log = [];
+
+const addLog = function (msg) {
+    game_log = [msg].concat(game_log).slice(0, 5);
+};
+
 // called from renderBoard when player clicks an inventory slot
 const onWeaponClick = function (index) {
     game = selectWeapon(index, game);
@@ -25,7 +33,7 @@ const onWeaponClick = function (index) {
 };
 
 const rerender = function () {
-    renderBoard(game, onCellClick, onWeaponClick);
+    renderBoard(game, onCellClick, onWeaponClick, game_log);
 };
 
 // show a flash message for a moment then restore the status text
@@ -76,6 +84,10 @@ const onCellClick = function (x, y) {
     if (clicked_unit && clicked_unit.owner !== game.current_player) {
         const result = attackUnit(x, y, game);
         if (result !== game) {
+            const attacker = game.units.find(function (u) { return u.id === game.selected_unit_id; });
+            const weapon = attacker ? attacker.inventory[game.selected_weapon_index] : null;
+            const w_name = weapon ? weapon.name : "weapon";
+            addLog("AG-0" + game.current_player + " fired " + w_name + " at AG-0" + clicked_unit.owner);
             game = spawnWeaponDrop(result);
             rerender();
             return;
@@ -87,6 +99,10 @@ const onCellClick = function (x, y) {
     // clicking the enemy server tries to attack it
     const after_attack = attackCore(x, y, game);
     if (after_attack !== game) {
+        const attacker = game.units.find(function (u) { return u.id === game.selected_unit_id; });
+        const weapon = attacker ? attacker.inventory[game.selected_weapon_index] : null;
+        const w_name = weapon ? weapon.name : "weapon";
+        addLog("AG-0" + game.current_player + " hit enemy SERVER with " + w_name);
         game = spawnWeaponDrop(after_attack);
         rerender();
         return;
@@ -95,6 +111,7 @@ const onCellClick = function (x, y) {
     // clicking an empty tile tries to move there
     const after_move = moveSelectedUnit(x, y, game);
     if (after_move !== game) {
+        addLog("AG-0" + game.current_player + " moved to (" + x + "," + y + ")");
         game = spawnWeaponDrop(after_move);
         rerender();
         return;

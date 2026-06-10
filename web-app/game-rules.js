@@ -195,9 +195,87 @@ const useWeapon = function (unit, weapon_index) {
 };
 
 /**
- * Move the selected agent one tile (or more with Overclock active).
- * Slowed agents cannot move. Firewalls block movement.
- * Walking over a data-cache picks it up automatically.
+ * BFS flood-fill to find all tiles an agent can actually reach.
+ * This is more accurate than plain manhattan distance because firewalls
+ * block the entire path, not just the desination tile – an agent cannot
+ * teleport through a wall even if the endpoint happens to be clear.
+ * @param {Unit}      unit
+ * @param {GameState} game
+ * @returns {Array<{x: number, y: number}>}
+ */
+const getReachableTiles = function (unit, game) {
+
+    const active_item = unit.inventory[game.selected_weapon_index];
+    const overclock_active = (
+        active_item &&
+        active_item.movement_boost &&
+        active_item.movement_boost > unit.movement
+    );
+    const max_steps = overclock_active ? active_item.movement_boost : unit.movement;
+
+    const visited = {};
+    const queue = [{ x: unit.x, y: unit.y, steps: 0 }];
+    const reachable = [];
+
+    visited[unit.x + "," + unit.y] = true;
+
+    while (queue.length > 0) {
+
+        const current = queue.shift();
+
+        if (current.steps > 0) {
+            reachable.push({ x: current.x, y: current.y });
+        }
+
+        if (current.steps >= max_steps) {
+            continue;
+        }
+
+        const dirs = [
+            { x: current.x + 1, y: current.y },
+            { x: current.x - 1, y: current.y },
+            { x: current.x,     y: current.y + 1 },
+            { x: current.x,     y: current.y - 1 }
+        ];
+
+        dirs.forEach(function (n) {
+
+            const key = n.x + "," + n.y;
+
+            if (visited[key]) {
+                return;
+            }
+
+            if (!inBounds(n.x, n.y, game.board_size)) {
+                return;
+            }
+
+            // firewalls and cores block the path entirely – can't pass through them
+            if (getFirewallAtPosition(n.x, n.y, game)) {
+                return;
+            }
+
+            if (getCoreAtPosition(n.x, n.y, game)) {
+                return;
+            }
+
+            // units block passage too – you can't walk through a friendly or enemy agent
+            if (getUnitAtPosition(n.x, n.y, game)) {
+                return;
+            }
+
+            visited[key] = true;
+            queue.push({ x: n.x, y: n.y, steps: current.steps + 1 });
+        });
+    }
+
+    return reachable;
+};
+
+/**
+ * Move the selected agent to (x, y).
+ * Uses BFS reachability – agents must route around firewalls, not just avoid them.
+ * Slowed agents cannot move. Walking over a data-cache picks it up automatically.
  * @param {number}    x
  * @param {number}    y
  * @param {GameState} game
@@ -242,22 +320,24 @@ const moveSelectedUnit = function (x, y, game) {
         return game;
     }
 
-    const distance = getDistance(unit.x, unit.y, x, y);
+    // BFS check – destination must be reachable by actual pathfinding
+    const reachable = getReachableTiles(unit, game);
+    const can_reach = reachable.some(function (t) {
+        return t.x === x && t.y === y;
+    });
 
-    // check if overclock item is active – gives a temporary movement boost
+    if (!can_reach) {
+        return game;
+    }
+
+    // still need manhattan distance to decide if overclock gets consumed
+    const distance = getDistance(unit.x, unit.y, x, y);
     const active_item = unit.inventory[game.selected_weapon_index];
     const overclock_active = (
         active_item &&
         active_item.movement_boost &&
         active_item.movement_boost > unit.movement
     );
-    const effective_movement = overclock_active
-        ? active_item.movement_boost
-        : unit.movement;
-
-    if (distance > effective_movement) {
-        return game;
-    }
 
     let updated_units = game.units.map(function (u) {
         return u.id === unit.id ? { ...u, x: x, y: y } : u;
@@ -360,6 +440,7 @@ const attackCore = function (x, y, game) {
  * Attack an enemy agent directly.
  * malware  – applies "slowed" status for one turn.
  * phishing – copies the target's first non-ping weapon.
+ * emp      – slows ALL enemies within range, not just the target.
  * A killed agent is removed from the board and queued to respawn.
  * @param {number}    x
  * @param {number}    y
@@ -456,6 +537,20 @@ const attackUnit = function (x, y, game) {
         });
     }
 
+    // emp has area effect – slow every enemy agent within range, not just the target
+    if (weapon.type === "emp") {
+        updated_units = updated_units.map(function (u) {
+            if (u.owner === attacker.owner) {
+                return u;
+            }
+            const dist = getDistance(attacker.x, attacker.y, u.x, u.y);
+            if (dist <= weapon.range) {
+                return { ...u, status: "slowed" };
+            }
+            return u;
+        });
+    }
+
     return endTurn({ ...game, units: updated_units, respawn_queue: updated_queue });
 };
 
@@ -476,7 +571,7 @@ const spawnWeaponDrop = function (game, random_fn) {
         return game;
     }
 
-    const types = ["phishing", "malware", "zero_day", "overclock"];
+    const types = ["phishing", "malware", "zero_day", "overclock", "emp"];
     const type = types[Math.floor(rand() * types.length)]; // use injected random
 
     let x;
@@ -506,4 +601,13 @@ const spawnWeaponDrop = function (game, random_fn) {
     };
 };
 
-export { inBounds, hasLineOfSight, endTurn, moveSelectedUnit, attackCore, attackUnit, spawnWeaponDrop };
+export {
+    inBounds,
+    hasLineOfSight,
+    endTurn,
+    getReachableTiles,
+    moveSelectedUnit,
+    attackCore,
+    attackUnit,
+    spawnWeaponDrop
+};

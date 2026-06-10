@@ -1,4 +1,4 @@
-﻿import {
+import {
     getDistance,
     getUnitAtPosition,
     getCoreAtPosition,
@@ -8,6 +8,8 @@
     PLAYER_1,
     PLAYER_2
 } from "./game-state.js";
+
+import { getReachableTiles } from "./game-rules.js";
 
 // ─── SVG helpers ─────────────────────────────────────────────────────────────
 // Each returns a raw SVG string to drop inside a tile's innerHTML.
@@ -97,6 +99,7 @@ const weaponBadgeColor = function (type) {
     if (type === "phishing") { return "#ff8c00"; }
     if (type === "malware")  { return "#39ff14"; }
     if (type === "zero_day") { return "#ff2244"; }
+    if (type === "emp")      { return "#cc44ff"; }
     return "#4a9fff";  // ping – default blue
 };
 
@@ -104,11 +107,13 @@ const weaponBadgeLabel = function (type) {
     if (type === "phishing") { return "PHI"; }
     if (type === "malware")  { return "MLW"; }
     if (type === "zero_day") { return "0-DAY"; }
+    if (type === "emp")      { return "EMP"; }
     return "PNG";
 };
 
 // ─── Tile builder ──────────
-const renderTile = function (x, y, game, onCellClick) {
+// reachable_tiles is computed once per render pass by renderBoard and passed in
+const renderTile = function (x, y, game, onCellClick, reachable_tiles) {
 
     const tile = document.createElement("button");
     tile.className = "tile";
@@ -123,10 +128,12 @@ const renderTile = function (x, y, game, onCellClick) {
         return u.id === game.selected_unit_id;
     });
 
-    // green dot on tiles the selected agent can reach
-    if (selected_unit && !unit && !core && !wall) {
-        const dist = getDistance(selected_unit.x, selected_unit.y, x, y);
-        if (dist <= selected_unit.movement && selected_unit.status !== "slowed") {
+    // green dot on tiles the selected agent can reach (uses pre-computed BFS list)
+    if (selected_unit && !unit && !core && !wall && selected_unit.status !== "slowed") {
+        const is_reachable = reachable_tiles.some(function (t) {
+            return t.x === x && t.y === y;
+        });
+        if (is_reachable) {
             tile.classList.add("in-range");
         }
     }
@@ -278,6 +285,9 @@ const renderInventory = function (game, onWeaponClick) {
 
         const badge_col = weaponBadgeColor(weapon.type);
 
+        // show area-effect note for emp
+        const extra = weapon.type === "emp" ? " / AOE" : "";
+
         btn.innerHTML = (
             '<span class="inv-badge" style="background:' + badge_col + '">' +
             weaponBadgeLabel(weapon.type) +
@@ -285,6 +295,7 @@ const renderInventory = function (game, onWeaponClick) {
             '<span class="inv-name">' + weapon.name + "</span>" +
             '<span class="inv-stats">DMG ' + weapon.damage +
             " / RNG " + weapon.range +
+            extra +
             " / " + uses_text + "</span>"
         );
 
@@ -293,6 +304,32 @@ const renderInventory = function (game, onWeaponClick) {
         });
 
         aside.appendChild(btn);
+    });
+};
+
+// ─── Comms log ─────────────────────────────
+// shows the last few actions so players can see what just happened
+
+const renderCommsLog = function (log) {
+
+    const el = document.getElementById("comms-log");
+
+    if (!el) {
+        return;
+    }
+
+    el.innerHTML = "<h3>COMMS LOG</h3>";
+
+    if (log.length === 0) {
+        el.innerHTML += '<p class="hint">No activity yet.</p>';
+        return;
+    }
+
+    log.forEach(function (entry) {
+        const line = document.createElement("p");
+        line.className = "log-entry";
+        line.textContent = entry;
+        el.appendChild(line);
     });
 };
 
@@ -353,18 +390,29 @@ const renderStatus = function (game) {
 
 // ─── Main render entry point ─────────────
 
-const renderBoard = function (game, onCellClick, onWeaponClick) {
+const renderBoard = function (game, onCellClick, onWeaponClick, log) {
 
     const board = document.getElementById("board");
     board.innerHTML = "";
 
+    // compute BFS reachable tiles once here and pass to each tile builder
+    // avoids calling getReachableTiles 36 times (once per tile)
+    const selected_unit = game.units.find(function (u) {
+        return u.id === game.selected_unit_id && u.owner === game.current_player;
+    });
+
+    const reachable_tiles = (selected_unit && selected_unit.status !== "slowed")
+        ? getReachableTiles(selected_unit, game)
+        : [];
+
     for (let y = 0; y < game.board_size; y += 1) {
         for (let x = 0; x < game.board_size; x += 1) {
-            board.appendChild(renderTile(x, y, game, onCellClick));
+            board.appendChild(renderTile(x, y, game, onCellClick, reachable_tiles));
         }
     }
 
     renderInventory(game, onWeaponClick || function () {});
+    renderCommsLog(log || []);
     renderStatus(game);
 };
 

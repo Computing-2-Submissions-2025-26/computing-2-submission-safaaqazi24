@@ -47,6 +47,12 @@ const WEAPONS = {
         range: 0,
         movement_boost: 4,  // lets the agent move up to 4 tiles, consumed on use
         uses: 1
+    },
+    emp: {
+        name: "EMP Burst",
+        damage: 1,
+        range: 2,
+        uses: 2             // hits all enemies in range, not just one
     }
 };
 

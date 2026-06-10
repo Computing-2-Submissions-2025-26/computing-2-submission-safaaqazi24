@@ -162,6 +162,7 @@ describe("Movement", function () {
 
         game = {
             ...game,
+            firewalls: [],  // clear random firewalls so the path is always open
             units: game.units.map(function (u) {
                 return u.owner === PLAYER_1
                     ? {
@@ -178,6 +179,33 @@ describe("Movement", function () {
 
         const moved = moveSelectedUnit(4, 1, game);
         assert.notStrictEqual(moved, game, "overclock should allow a 3-tile move");
+    });
+
+    it("agent cannot move through a firewall to reach a tile behind it", function () {
+
+        let game = createGame();
+
+        // firewall at (2,1) means reaching (4,1) requires a 5-step detour
+        // which exceeds the overclock movement boost of 4 – so the move is rejected
+        game = {
+            ...game,
+            firewalls: [{ x: 2, y: 1 }],
+            units: game.units.map(function (u) {
+                return u.owner === PLAYER_1
+                    ? {
+                        ...u,
+                        x: 1, y: 1,
+                        inventory: [{ id: 11, type: "overclock", name: "Overclock", damage: 0, range: 0, movement_boost: 4, uses: 1 }]
+                    }
+                    : u;
+            }),
+            selected_weapon_index: 0
+        };
+
+        game = selectUnit(1, game);
+
+        const moved = moveSelectedUnit(4, 1, game);
+        assert.strictEqual(moved, game, "firewall at (2,1) forces a 5-step detour to (4,1), exceeding overclock range of 4");
     });
 
 });

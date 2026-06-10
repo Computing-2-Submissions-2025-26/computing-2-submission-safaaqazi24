@@ -494,6 +494,25 @@ h3 {
 
 #legend li:last-child { border-bottom: none; }
 
+/* ── Comms log ───────────────────────────────────────────────────────────── */
+#comms-log {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 12px;
+}
+
+.log-entry {
+    font-size: 0.68rem;
+    color: var(--muted);
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border);
+    letter-spacing: 0.5px;
+    line-height: 1.4;
+}
+
+.log-entry:first-of-type { color: var(--cyan); }  /* most recent entry highlighted */
+.log-entry:last-child { border-bottom: none; }
+
 /* ── Responsive ──────────────────────────────────────────────────────────── */
 @media (max-width: 800px) {
     :root { --tile: 58px; }

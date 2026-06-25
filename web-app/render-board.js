@@ -11,7 +11,7 @@ import {
 
 import { getReachableTiles } from "./game-rules.js";
 
-// ─── SVG helpers ─────────────────────────────────────────────────────────────
+// ─── SVG helpers ────────────────────────────────────────
 // Each returns a raw SVG string to drop inside a tile's innerHTML.
 // Using SVG so we get proper scalable graphics without any image assets.
 
@@ -19,20 +19,29 @@ import { getReachableTiles } from "./game-rules.js";
 // added the visor rect so it looks like a hacker character
 const svgAgent = function (color, highlight_color, status) {
 
-    const dim = status === "slowed" ? ' opacity="0.5"' : "";
+    const dim = (status === "slowed"
+        ? ' opacity="0.5"'
+        : "");
+
+    const slowed_bar = (status === "slowed"
+        ? '<rect x="5" y="3" width="34" height="6" rx="2"' +
+            ' fill="#ff8800" opacity="0.8"/>'
+        : "");
 
     return (
-        '<svg width="44" height="44" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg"' + dim + ">" +
+        '<svg width="44" height="44" viewBox="0 0 44 44"' +
+        ' xmlns="http://www.w3.org/2000/svg"' + dim + ">" +
         // hex body
         '<polygon points="22,3 39,12.5 39,31.5 22,41 5,31.5 5,12.5"' +
-        ' fill="' + color + '" stroke="' + highlight_color + '" stroke-width="1.5"/>' +
+        ' fill="' + color + '" stroke="' + highlight_color +
+        '" stroke-width="1.5"/>' +
         // visor strip
-        '<rect x="13" y="17" width="18" height="6" rx="2" fill="rgba(0,0,0,0.6)"/>' +
-        '<rect x="14" y="18" width="16" height="4" rx="1.5" fill="' + highlight_color + '" opacity="0.9"/>' +
+        '<rect x="13" y="17" width="18" height="6" rx="2"' +
+        ' fill="rgba(0,0,0,0.6)"/>' +
+        '<rect x="14" y="18" width="16" height="4" rx="1.5" fill="' +
+        highlight_color + '" opacity="0.9"/>' +
         // slowed indicator – orange tint bar at top
-        (status === "slowed"
-            ? '<rect x="5" y="3" width="34" height="6" rx="2" fill="#ff8800" opacity="0.8"/>'
-            : "") +
+        slowed_bar +
         "</svg>"
     );
 };
@@ -40,13 +49,17 @@ const svgAgent = function (color, highlight_color, status) {
 // server rack – horizontal bands with a small LED dot
 const svgServer = function (border_color) {
     return (
-        '<svg width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">' +
+        '<svg width="48" height="48" viewBox="0 0 48 48"' +
+        ' xmlns="http://www.w3.org/2000/svg">' +
         '<rect x="4" y="5" width="40" height="38" rx="3"' +
         ' fill="#0b1a2e" stroke="' + border_color + '" stroke-width="1.5"/>' +
         // rack slots
-        '<rect x="8" y="11" width="26" height="5" rx="1" fill="' + border_color + '" opacity="0.45"/>' +
-        '<rect x="8" y="20" width="26" height="5" rx="1" fill="' + border_color + '" opacity="0.45"/>' +
-        '<rect x="8" y="29" width="26" height="5" rx="1" fill="' + border_color + '" opacity="0.45"/>' +
+        '<rect x="8" y="11" width="26" height="5" rx="1" fill="' +
+        border_color + '" opacity="0.45"/>' +
+        '<rect x="8" y="20" width="26" height="5" rx="1" fill="' +
+        border_color + '" opacity="0.45"/>' +
+        '<rect x="8" y="29" width="26" height="5" rx="1" fill="' +
+        border_color + '" opacity="0.45"/>' +
         // LED indicators
         '<circle cx="38" cy="13" r="2.5" fill="#00ff88"/>' +
         '<circle cx="38" cy="22" r="2.5" fill="#00ff88" opacity="0.5"/>' +
@@ -58,7 +71,8 @@ const svgServer = function (border_color) {
 // USB drive shape for data-caches
 const svgCache = function () {
     return (
-        '<svg width="38" height="38" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg">' +
+        '<svg width="38" height="38" viewBox="0 0 38 38"' +
+        ' xmlns="http://www.w3.org/2000/svg">' +
         '<rect x="12" y="18" width="14" height="16" rx="2" fill="#ffe600"/>' +
         '<rect x="15" y="9" width="8" height="11" rx="1" fill="#ccb800"/>' +
         '<rect x="17" y="4" width="4" height="7" rx="1" fill="#888"/>' +
@@ -69,52 +83,79 @@ const svgCache = function () {
 
 // firewall tile – brick-style with diagonal cross
 const svgFirewall = function () {
+
+    const brick = ' rx="1" fill="none" stroke="#8b1a00" stroke-width="1.2"/>';
+
     return (
-        '<svg width="86" height="86" viewBox="0 0 86 86" xmlns="http://www.w3.org/2000/svg">' +
+        '<svg width="86" height="86" viewBox="0 0 86 86"' +
+        ' xmlns="http://www.w3.org/2000/svg">' +
         '<rect width="86" height="86" fill="#1a0400"/>' +
         // brick rows – offset every other row
-        '<rect x="1"  y="1"  width="40" height="18" rx="1" fill="none" stroke="#8b1a00" stroke-width="1.2"/>' +
-        '<rect x="43" y="1"  width="42" height="18" rx="1" fill="none" stroke="#8b1a00" stroke-width="1.2"/>' +
-        '<rect x="1"  y="21" width="20" height="18" rx="1" fill="none" stroke="#8b1a00" stroke-width="1.2"/>' +
-        '<rect x="23" y="21" width="40" height="18" rx="1" fill="none" stroke="#8b1a00" stroke-width="1.2"/>' +
-        '<rect x="65" y="21" width="20" height="18" rx="1" fill="none" stroke="#8b1a00" stroke-width="1.2"/>' +
-        '<rect x="1"  y="41" width="40" height="18" rx="1" fill="none" stroke="#8b1a00" stroke-width="1.2"/>' +
-        '<rect x="43" y="41" width="42" height="18" rx="1" fill="none" stroke="#8b1a00" stroke-width="1.2"/>' +
-        '<rect x="1"  y="61" width="20" height="18" rx="1" fill="none" stroke="#8b1a00" stroke-width="1.2"/>' +
-        '<rect x="23" y="61" width="40" height="18" rx="1" fill="none" stroke="#8b1a00" stroke-width="1.2"/>' +
-        '<rect x="65" y="61" width="20" height="18" rx="1" fill="none" stroke="#8b1a00" stroke-width="1.2"/>' +
+        '<rect x="1"  y="1"  width="40" height="18"' + brick +
+        '<rect x="43" y="1"  width="42" height="18"' + brick +
+        '<rect x="1"  y="21" width="20" height="18"' + brick +
+        '<rect x="23" y="21" width="40" height="18"' + brick +
+        '<rect x="65" y="21" width="20" height="18"' + brick +
+        '<rect x="1"  y="41" width="40" height="18"' + brick +
+        '<rect x="43" y="41" width="42" height="18"' + brick +
+        '<rect x="1"  y="61" width="20" height="18"' + brick +
+        '<rect x="23" y="61" width="40" height="18"' + brick +
+        '<rect x="65" y="61" width="20" height="18"' + brick +
         // diagonal cross
-        '<line x1="8" y1="8" x2="78" y2="78" stroke="#cc2200" stroke-width="1.5" opacity="0.5"/>' +
-        '<line x1="78" y1="8" x2="8" y2="78" stroke="#cc2200" stroke-width="1.5" opacity="0.5"/>' +
+        '<line x1="8" y1="8" x2="78" y2="78" stroke="#cc2200"' +
+        ' stroke-width="1.5" opacity="0.5"/>' +
+        '<line x1="78" y1="8" x2="8" y2="78" stroke="#cc2200"' +
+        ' stroke-width="1.5" opacity="0.5"/>' +
         // label
-        '<text x="43" y="50" text-anchor="middle" fill="#cc2200" font-size="8"' +
-        ' font-family="monospace" letter-spacing="2" opacity="0.9">FIREWALL</text>' +
+        '<text x="43" y="50" text-anchor="middle" fill="#cc2200"' +
+        ' font-size="8" font-family="monospace" letter-spacing="2"' +
+        ' opacity="0.9">FIREWALL</text>' +
         "</svg>"
     );
 };
 
 // weapon slot badge shown on the unit tile and in inventory
-// colour-coded by weapon type so you can tell at a glance what the agent has equipped
+// colour-coded by weapon type so you can tell what's equipped at a glance
 const weaponBadgeColor = function (type) {
-    if (type === "phishing") { return "#ff8c00"; }
-    if (type === "malware")  { return "#39ff14"; }
-    if (type === "zero_day") { return "#ff2244"; }
-    if (type === "emp")      { return "#cc44ff"; }
-    if (type === "overclock") { return "#ffffff"; }
+    if (type === "phishing") {
+        return "#ff8c00";
+    }
+    if (type === "malware") {
+        return "#39ff14";
+    }
+    if (type === "zero_day") {
+        return "#ff2244";
+    }
+    if (type === "emp") {
+        return "#cc44ff";
+    }
+    if (type === "overclock") {
+        return "#ffffff";
+    }
     return "#4a9fff";  // ping – default blue
 };
 
 const weaponBadgeLabel = function (type) {
-    if (type === "phishing") { return "PHI"; }
-    if (type === "malware")  { return "MLW"; }
-    if (type === "zero_day") { return "0-DAY"; }
-    if (type === "emp")      { return "EMP"; }
-    if (type === "overclock") { return "OCK"; }
+    if (type === "phishing") {
+        return "PHI";
+    }
+    if (type === "malware") {
+        return "MLW";
+    }
+    if (type === "zero_day") {
+        return "0-DAY";
+    }
+    if (type === "emp") {
+        return "EMP";
+    }
+    if (type === "overclock") {
+        return "OCK";
+    }
     return "PNG";
 };
 
 // ─── Tile builder ──────────
-// reachable_tiles is computed once per render pass by renderBoard and passed in
+// reachable_tiles is computed once per render pass, then passed in here
 const renderTile = function (x, y, game, onCellClick, reachable_tiles) {
 
     const tile = document.createElement("button");
@@ -130,8 +171,15 @@ const renderTile = function (x, y, game, onCellClick, reachable_tiles) {
         return u.id === game.selected_unit_id;
     });
 
-    // green dot on tiles the selected agent can reach (uses pre-computed BFS list)
-    if (selected_unit && !unit && !core && !wall && selected_unit.status !== "slowed") {
+    const click_handler = function () {
+        onCellClick(x, y);
+    };
+
+    // green dot on tiles the selected agent can reach (pre-computed BFS list)
+    if (
+        selected_unit && !unit && !core && !wall &&
+        selected_unit.status !== "slowed"
+    ) {
         const is_reachable = reachable_tiles.some(function (t) {
             return t.x === x && t.y === y;
         });
@@ -167,14 +215,18 @@ const renderTile = function (x, y, game, onCellClick, reachable_tiles) {
         tile.classList.add("firewall");
         tile.innerHTML = svgFirewall();
         tile.disabled = true;
-        tile.addEventListener("click", function () { onCellClick(x, y); });
+        tile.addEventListener("click", click_handler);
         return tile;
     }
 
     // ── server ─────────────
     if (core) {
-        const border = core.owner === PLAYER_1 ? "#3b9dff" : "#ff4d4d";
-        tile.classList.add(core.owner === PLAYER_1 ? "core-p1" : "core-p2");
+        const border = (core.owner === PLAYER_1
+            ? "#3b9dff"
+            : "#ff4d4d");
+        tile.classList.add(core.owner === PLAYER_1
+            ? "core-p1"
+            : "core-p2");
 
         const hp_pct = Math.max(0, core.hp / 20 * 100);
 
@@ -187,7 +239,7 @@ const renderTile = function (x, y, game, onCellClick, reachable_tiles) {
             '<div class="hp">' + core.hp + "/20</div>"
         );
 
-        tile.addEventListener("click", function () { onCellClick(x, y); });
+        tile.addEventListener("click", click_handler);
         return tile;
     }
 
@@ -195,37 +247,58 @@ const renderTile = function (x, y, game, onCellClick, reachable_tiles) {
     if (unit) {
 
         const is_selected = unit.id === game.selected_unit_id;
-        const color       = unit.owner === PLAYER_1 ? "#1a3d6e" : "#6e1a1a";
-        const hi_color    = unit.owner === PLAYER_1 ? "#3b9dff" : "#ff4d4d";
-        const label       = unit.owner === PLAYER_1 ? "AG-01"  : "AG-02";
+        const color = (unit.owner === PLAYER_1
+            ? "#1a3d6e"
+            : "#6e1a1a");
+        const hi_color = (unit.owner === PLAYER_1
+            ? "#3b9dff"
+            : "#ff4d4d");
+        const label = (unit.owner === PLAYER_1
+            ? "AG-01"
+            : "AG-02");
 
-        tile.classList.add(unit.owner === PLAYER_1 ? "unit-p1" : "unit-p2");
+        tile.classList.add(unit.owner === PLAYER_1
+            ? "unit-p1"
+            : "unit-p2");
 
         if (is_selected) {
             tile.classList.add("selected");
         }
 
         // show the currently equipped weapon as a small badge
-        const weapon     = unit.inventory[game.selected_weapon_index] || unit.inventory[0];
-        const badge_col  = weapon ? weaponBadgeColor(weapon.type) : "#4a9fff";
-        const badge_lbl  = weapon ? weaponBadgeLabel(weapon.type) : "PNG";
+        const weapon = (
+            unit.inventory[game.selected_weapon_index] || unit.inventory[0]
+        );
+        const badge_col = (weapon
+            ? weaponBadgeColor(weapon.type)
+            : "#4a9fff");
+        const badge_lbl = (weapon
+            ? weaponBadgeLabel(weapon.type)
+            : "PNG");
 
         const hp_pct = unit.hp / unit.max_hp * 100;
 
         // green blink dot if it's this unit's turn to act
-        const active_dot = (unit.owner === game.current_player)
+        const active_dot = (unit.owner === game.current_player
             ? '<div class="active-dot"></div>'
-            : "";
+            : "");
+
+        const hp_bar = (
+            '<div class="unit-hp-bar"><div class="unit-hp-fill"' +
+            ' style="width:' + hp_pct + '%;background:' + hi_color +
+            '"></div></div>'
+        );
 
         tile.innerHTML = (
             svgAgent(color, hi_color, unit.status) +
             active_dot +
             '<div class="unit-label">' + label + "</div>" +
-            '<div class="weapon-badge" style="background:' + badge_col + '">' + badge_lbl + "</div>" +
-            '<div class="unit-hp-bar"><div class="unit-hp-fill" style="width:' + hp_pct + '%;background:' + hi_color + '"></div></div>'
+            '<div class="weapon-badge" style="background:' + badge_col +
+            '">' + badge_lbl + "</div>" +
+            hp_bar
         );
 
-        tile.addEventListener("click", function () { onCellClick(x, y); });
+        tile.addEventListener("click", click_handler);
         return tile;
     }
 
@@ -235,16 +308,19 @@ const renderTile = function (x, y, game, onCellClick, reachable_tiles) {
         const w = WEAPONS[drop.type];
         tile.innerHTML = (
             svgCache() +
-            '<div class="drop-label" style="color:' + weaponBadgeColor(drop.type) + '">' +
-            (w ? w.name : drop.type) +
+            '<div class="drop-label" style="color:' +
+            weaponBadgeColor(drop.type) + '">' +
+            (w
+                ? w.name
+                : drop.type) +
             "</div>"
         );
-        tile.addEventListener("click", function () { onCellClick(x, y); });
+        tile.addEventListener("click", click_handler);
         return tile;
     }
 
     // empty tile
-    tile.addEventListener("click", function () { onCellClick(x, y); });
+    tile.addEventListener("click", click_handler);
     return tile;
 };
 
@@ -260,7 +336,10 @@ const renderInventory = function (game, onWeaponClick) {
     });
 
     if (!selected_unit) {
-        aside.innerHTML += '<p class="hint">Select your agent<br>to view loaded exploits.<br><br>Q / E to cycle.</p>';
+        aside.innerHTML += (
+            '<p class="hint">Select your agent<br>to view loaded' +
+            " exploits.<br><br>Q / E to cycle.</p>"
+        );
         return;
     }
 
@@ -281,17 +360,22 @@ const renderInventory = function (game, onWeaponClick) {
             btn.classList.add("active");
         }
 
-        const uses_text = weapon.uses === Infinity
+        const uses_text = (weapon.uses === Infinity
             ? "inf"
-            : weapon.uses + " use" + (weapon.uses !== 1 ? "s" : "");
+            : weapon.uses + " use" + (weapon.uses !== 1
+                ? "s"
+                : ""));
 
         const badge_col = weaponBadgeColor(weapon.type);
 
         // show area-effect note for emp
-        const extra = weapon.type === "emp" ? " / AOE" : "";
+        const extra = (weapon.type === "emp"
+            ? " / AOE"
+            : "");
 
         btn.innerHTML = (
-            '<span class="inv-badge" style="background:' + badge_col + '">' +
+            '<span class="inv-badge" style="background:' + badge_col +
+            '">' +
             weaponBadgeLabel(weapon.type) +
             "</span>" +
             '<span class="inv-name">' + weapon.name + "</span>" +
@@ -345,8 +429,12 @@ const renderStatus = function (game) {
         return;
     }
 
-    const p1_core = game.cores.find(function (c) { return c.owner === PLAYER_1; });
-    const p2_core = game.cores.find(function (c) { return c.owner === PLAYER_2; });
+    const p1_core = game.cores.find(function (c) {
+        return c.owner === PLAYER_1;
+    });
+    const p2_core = game.cores.find(function (c) {
+        return c.owner === PLAYER_2;
+    });
 
     if (game.winner !== 0) {
 
@@ -370,22 +458,38 @@ const renderStatus = function (game) {
     // respawn countdowns
     let respawn_text = "";
     game.respawn_queue.forEach(function (entry) {
-        respawn_text += " [AG-0" + entry.owner + " RESPAWN IN " + entry.turns_left + "]";
+        respawn_text += (
+            " [AG-0" + entry.owner + " RESPAWN IN " + entry.turns_left + "]"
+        );
     });
 
+    const p1_active = (game.current_player === PLAYER_1
+        ? "active-p1"
+        : "");
+    const p2_active = (game.current_player === PLAYER_2
+        ? "active-p2"
+        : "");
+    const respawn_html = (respawn_text
+        ? '<div class="respawn-info">' + respawn_text + "</div>"
+        : "");
+
     status.innerHTML = (
-        '<div class="player-status ' + (game.current_player === PLAYER_1 ? "active-p1" : "") + '">' +
+        '<div class="player-status ' + p1_active + '">' +
         "<span>AGENT-01</span>" +
-        '<span class="core-hp">SERVER ' + (p1_core ? p1_core.hp : 0) + "/20</span>" +
+        '<span class="core-hp">SERVER ' + (p1_core
+            ? p1_core.hp
+            : 0) + "/20</span>" +
         "</div>" +
         '<div class="turn-block">' +
         "<div>TURN " + (game.turn_count + 1) + "</div>" +
         "<div>AGENT-0" + game.current_player + " EXEC</div>" +
-        (respawn_text ? '<div class="respawn-info">' + respawn_text + "</div>" : "") +
+        respawn_html +
         "</div>" +
-        '<div class="player-status ' + (game.current_player === PLAYER_2 ? "active-p2" : "") + '">' +
+        '<div class="player-status ' + p2_active + '">' +
         "<span>AGENT-02</span>" +
-        '<span class="core-hp">SERVER ' + (p2_core ? p2_core.hp : 0) + "/20</span>" +
+        '<span class="core-hp">SERVER ' + (p2_core
+            ? p2_core.hp
+            : 0) + "/20</span>" +
         "</div>"
     );
 };
@@ -400,16 +504,23 @@ const renderBoard = function (game, onCellClick, onWeaponClick, log) {
     // compute BFS reachable tiles once here and pass to each tile builder
     // avoids calling getReachableTiles 36 times (once per tile)
     const selected_unit = game.units.find(function (u) {
-        return u.id === game.selected_unit_id && u.owner === game.current_player;
+        return (
+            u.id === game.selected_unit_id &&
+            u.owner === game.current_player
+        );
     });
 
-    const reachable_tiles = (selected_unit && selected_unit.status !== "slowed")
+    const reachable_tiles = (
+        selected_unit && selected_unit.status !== "slowed"
         ? getReachableTiles(selected_unit, game)
-        : [];
+        : []
+    );
 
     for (let y = 0; y < game.board_size; y += 1) {
         for (let x = 0; x < game.board_size; x += 1) {
-            board.appendChild(renderTile(x, y, game, onCellClick, reachable_tiles));
+            board.appendChild(
+                renderTile(x, y, game, onCellClick, reachable_tiles)
+            );
         }
     }
 

@@ -77,6 +77,23 @@ const flashMessage = function (text) {
     }, 1200);
 };
 
+// builds the "fired X at AG-0Y" / "hit SERVER with X" log line
+const describeAttack = function (target_label) {
+    const attacker = game.units.find(function (u) {
+        return u.id === game.selected_unit_id;
+    });
+    const weapon = (attacker
+        ? attacker.inventory[game.selected_weapon_index]
+        : null);
+    const w_name = (weapon
+        ? weapon.name
+        : "weapon");
+    return (
+        "AG-0" + game.current_player + " fired " + w_name +
+        " at " + target_label
+    );
+};
+
 /**
  * Main click handler – runs every time a board tile is clicked.
  *
@@ -110,10 +127,7 @@ const onCellClick = function (x, y) {
     if (clicked_unit && clicked_unit.owner !== game.current_player) {
         const result = attackUnit(x, y, game);
         if (result !== game) {
-            const attacker = game.units.find(function (u) { return u.id === game.selected_unit_id; });
-            const weapon = attacker ? attacker.inventory[game.selected_weapon_index] : null;
-            const w_name = weapon ? weapon.name : "weapon";
-            addLog("AG-0" + game.current_player + " fired " + w_name + " at AG-0" + clicked_unit.owner);
+            addLog(describeAttack("AG-0" + clicked_unit.owner));
             game = spawnWeaponDrop(result);
             rerender();
             maybeRunBotTurn();
@@ -126,10 +140,7 @@ const onCellClick = function (x, y) {
     // clicking the enemy server tries to attack it
     const after_attack = attackCore(x, y, game);
     if (after_attack !== game) {
-        const attacker = game.units.find(function (u) { return u.id === game.selected_unit_id; });
-        const weapon = attacker ? attacker.inventory[game.selected_weapon_index] : null;
-        const w_name = weapon ? weapon.name : "weapon";
-        addLog("AG-0" + game.current_player + " hit enemy SERVER with " + w_name);
+        addLog(describeAttack("the SERVER"));
         game = spawnWeaponDrop(after_attack);
         rerender();
         maybeRunBotTurn();
@@ -139,7 +150,9 @@ const onCellClick = function (x, y) {
     // clicking an empty tile tries to move there
     const after_move = moveSelectedUnit(x, y, game);
     if (after_move !== game) {
-        addLog("AG-0" + game.current_player + " moved to (" + x + "," + y + ")");
+        addLog(
+            "AG-0" + game.current_player + " moved to (" + x + "," + y + ")"
+        );
         game = spawnWeaponDrop(after_move);
         rerender();
         maybeRunBotTurn();
@@ -179,9 +192,15 @@ document.addEventListener("keydown", function (event) {
     }
 
     // number keys 1-3 select slot directly
-    if (event.key === "1") { index = 0; }
-    if (event.key === "2") { index = 1; }
-    if (event.key === "3") { index = 2; }
+    if (event.key === "1") {
+        index = 0;
+    }
+    if (event.key === "2") {
+        index = 1;
+    }
+    if (event.key === "3") {
+        index = 2;
+    }
 
     // wrap around
     if (index < 0) {

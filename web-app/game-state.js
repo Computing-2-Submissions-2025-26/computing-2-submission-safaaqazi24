@@ -13,9 +13,15 @@ const INVENTORY_LIMIT = 3;
 const FIREWALL_COUNT = 4;  // how many wall tiles to scatter on the board
 const RESPAWN_DELAY = 3;   // turns until a dead agent comes back
 
+// jslint forbids object/array spread syntax (it predates ES2018) – this
+// helper does the same merge job without "..." anywhere in the codebase
+const merge = function (base, changes) {
+    return Object.assign({}, base, changes);
+};
+
 // weapon definitions – damage, range, uses
 // ping is the fallback (infinite use, melee only)
-// overclock is a movement item – no damage, just lets you sprint up to 4 tiles
+// overclock is a movement item – no damage, lets you sprint up to 4 tiles
 const WEAPONS = {
     ping: {
         name: "Ping",
@@ -45,7 +51,7 @@ const WEAPONS = {
         name: "Overclock",
         damage: 0,
         range: 0,
-        movement_boost: 4,  // lets the agent move up to 4 tiles, consumed on use
+        movement_boost: 4,  // lets the agent sprint 4 tiles, consumed on use
         uses: 1
     },
     emp: {
@@ -57,11 +63,10 @@ const WEAPONS = {
 };
 
 const createWeapon = function (type) {
-    return {
-        id: Date.now() + Math.random(),
-        type: type,
-        ...WEAPONS[type]
-    };
+    return merge(
+        { id: Date.now() + Math.random(), type: type },
+        WEAPONS[type]
+    );
 };
 
 /**
@@ -243,13 +248,13 @@ const getFirewallAtPosition = function (x, y, game) {
  * @returns {GameState}
  */
 const selectUnit = function (unit_id, game) {
-    return {
-        ...game,
-        selected_unit_id:
+    return merge(game, {
+        selected_unit_id: (
             game.selected_unit_id === unit_id
             ? null
             : unit_id
-    };
+        )
+    });
 };
 
 /**
@@ -259,7 +264,7 @@ const selectUnit = function (unit_id, game) {
  * @returns {GameState}
  */
 const selectWeapon = function (index, game) {
-    return { ...game, selected_weapon_index: index };
+    return merge(game, { selected_weapon_index: index });
 };
 
 /**
@@ -268,13 +273,13 @@ const selectWeapon = function (index, game) {
  */
 const addWeaponToInventory = function (unit, weapon_type) {
 
-    const inventory = [...unit.inventory, createWeapon(weapon_type)];
+    const inventory = unit.inventory.concat([createWeapon(weapon_type)]);
 
     if (inventory.length > INVENTORY_LIMIT) {
         inventory.shift();  // drop oldest – FIFO
     }
 
-    return { ...unit, inventory: inventory };
+    return merge(unit, { inventory: inventory });
 };
 
 export {
@@ -285,6 +290,7 @@ export {
     INVENTORY_LIMIT,
     WEAPONS,
     RESPAWN_DELAY,
+    merge,
     createWeapon,
     createGame,
     getDistance,

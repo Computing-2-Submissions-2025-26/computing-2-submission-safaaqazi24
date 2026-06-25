@@ -15,6 +15,7 @@
   "devDependencies": {
     "docdash": "^2.0.2",
     "jsdoc": "^4.0.5",
+    "jslint": "^0.12.1",
     "mocha": "^11.7.5"
   }
 }

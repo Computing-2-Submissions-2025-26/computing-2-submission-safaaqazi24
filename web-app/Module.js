@@ -18,7 +18,13 @@
  */
 
 export { createGame } from "./game-state.js";
-export { moveSelectedUnit, attackCore, attackUnit, spawnWeaponDrop, hasLineOfSight } from "./game-rules.js";
+export {
+    moveSelectedUnit,
+    attackCore,
+    attackUnit,
+    spawnWeaponDrop,
+    hasLineOfSight
+} from "./game-rules.js";
 
 /**
  * @typedef {object} Weapon
@@ -62,8 +68,8 @@ export { moveSelectedUnit, attackCore, attackUnit, spawnWeaponDrop, hasLineOfSig
 /**
  * @typedef {object} GameState
  * @property {number}          current_player       - Whose turn it is
- * @property {number}          winner               - EMPTY | PLAYER_1 | PLAYER_2
- * @property {number|null}     selected_unit_id     - ID of currently selected unit
+ * @property {number}          winner               - EMPTY|PLAYER_1|PLAYER_2
+ * @property {number|null}     selected_unit_id     - currently selected unit
  * @property {number}          selected_weapon_index
  * @property {number}          turn_count
  * @property {number}          board_size           - 6

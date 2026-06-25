@@ -1,14 +1,6 @@
-NOTES FOR PEER REIVEW:
-- Currently my files are stored in iCloud so im having issues with the name of 'game-rules'. it keeps getting automatically renamed to game-rules 6. im trying to fix this, for now if there's issues running the game then this is why!
+AI Disclosure
 
-
-
-
-
-
-
-
-
+AI tools were used for idea generation and UX development. However, code logic, implementation, and refinement were all done by myself and any AI tools used were there to aid my learning. All AI generated content was later changed as it was used only as a foundation to build my own interface upon.
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/H6lPFq0J)
 # Computing 2 Coursework Submission.
 **CID**: 02607245

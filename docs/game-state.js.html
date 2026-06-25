@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>game-state.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-NET_BREACH.html">NET_BREACH</a><ul class='methods'><li data-type='method'><a href="module-NET_BREACH.html#~addWeaponToInventory">addWeaponToInventory</a></li><li data-type='method'><a href="module-NET_BREACH.html#~createGame">createGame</a></li><li data-type='method'><a href="module-NET_BREACH.html#~generateFirewalls">generateFirewalls</a></li><li data-type='method'><a href="module-NET_BREACH.html#~getCoreAtPosition">getCoreAtPosition</a></li><li data-type='method'><a href="module-NET_BREACH.html#~getDistance">getDistance</a></li><li data-type='method'><a href="module-NET_BREACH.html#~getFirewallAtPosition">getFirewallAtPosition</a></li><li data-type='method'><a href="module-NET_BREACH.html#~getUnitAtPosition">getUnitAtPosition</a></li><li data-type='method'><a href="module-NET_BREACH.html#~getWeaponAtPosition">getWeaponAtPosition</a></li><li data-type='method'><a href="module-NET_BREACH.html#~selectUnit">selectUnit</a></li><li data-type='method'><a href="module-NET_BREACH.html#~selectWeapon">selectWeapon</a></li></ul></li><li></li></ul><h3>Global</h3><ul><li><a href="global.html#Core">Core</a></li><li><a href="global.html#GameState">GameState</a></li><li><a href="global.html#RespawnEntry">RespawnEntry</a></li><li><a href="global.html#Unit">Unit</a></li><li><a href="global.html#Weapon">Weapon</a></li><li><a href="global.html#attackCore">attackCore</a></li><li><a href="global.html#attackUnit">attackUnit</a></li><li><a href="global.html#endTurn">endTurn</a></li><li><a href="global.html#getReachableTiles">getReachableTiles</a></li><li><a href="global.html#hasLineOfSight">hasLineOfSight</a></li><li><a href="global.html#inBounds">inBounds</a></li><li><a href="global.html#moveSelectedUnit">moveSelectedUnit</a></li><li><a href="global.html#playBotTurn">playBotTurn</a></li><li><a href="global.html#processRespawnQueue">processRespawnQueue</a></li><li><a href="global.html#spawnWeaponDrop">spawnWeaponDrop</a></li></ul>
+    
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">game-state.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>﻿/**
+ * NET//BREACH – game state module.
+ * Pure functions only – nothing in here mutates state directly.
+ *
+ * @module NET_BREACH
+ */
+
+const BOARD_SIZE = 6;
+const PLAYER_1 = 1;
+const PLAYER_2 = 2;
+const EMPTY = 0;
+const INVENTORY_LIMIT = 3;
+const FIREWALL_COUNT = 4;  // how many wall tiles to scatter on the board
+const RESPAWN_DELAY = 3;   // turns until a dead agent comes back
+
+// weapon definitions – damage, range, uses
+// ping is the fallback (infinite use, melee only)
+// overclock is a movement item – no damage, just lets you sprint up to 4 tiles
+const WEAPONS = {
+    ping: {
+        name: "Ping",
+        damage: 1,
+        range: 1,
+        uses: Infinity
+    },
+    phishing: {
+        name: "Phishing",
+        damage: 2,
+        range: 1,
+        uses: 3
+    },
+    malware: {
+        name: "Malware",
+        damage: 3,
+        range: 3,
+        uses: 2
+    },
+    zero_day: {
+        name: "Zero-Day",
+        damage: 5,
+        range: 4,
+        uses: 1
+    },
+    overclock: {
+        name: "Overclock",
+        damage: 0,
+        range: 0,
+        movement_boost: 4,  // lets the agent move up to 4 tiles, consumed on use
+        uses: 1
+    },
+    emp: {
+        name: "EMP Burst",
+        damage: 1,
+        range: 2,
+        uses: 2             // hits all enemies in range, not just one
+    }
+};
+
+const createWeapon = function (type) {
+    return {
+        id: Date.now() + Math.random(),
+        type: type,
+        ...WEAPONS[type]
+    };
+};
+
+/**
+ * Pick random firewall positions at game start.
+ * Avoids unit spawn tiles and the corner servers.
+ * Keeps a small buffer around each player's starting area.
+ */
+const generateFirewalls = function (units, cores, board_size) {
+
+    // build a list of tiles we must keep clear
+    const off_limits = [];
+
+    units.forEach(function (u) {
+        off_limits.push({ x: u.x, y: u.y });
+    });
+
+    cores.forEach(function (c) {
+        off_limits.push({ x: c.x, y: c.y });
+    });
+
+    // buffer tiles around each spawn so the game isn't immediately blocked
+    const buffer = [
+        { x: 1, y: 0 }, { x: 1, y: 1 }, { x: 0, y: 2 },
+        { x: 4, y: 5 }, { x: 4, y: 4 }, { x: 5, y: 3 }
+    ];
+
+    buffer.forEach(function (b) {
+        off_limits.push(b);
+    });
+
+    const walls = [];
+    let tries = 0;
+
+    while (walls.length &lt; FIREWALL_COUNT &amp;&amp; tries &lt; 200) {
+
+        tries += 1;
+
+        const x = Math.floor(Math.random() * board_size);
+        const y = Math.floor(Math.random() * board_size);
+
+        const taken = off_limits.some(function (t) {
+            return t.x === x &amp;&amp; t.y === y;
+        });
+
+        const already = walls.some(function (w) {
+            return w.x === x &amp;&amp; w.y === y;
+        });
+
+        if (!taken &amp;&amp; !already) {
+            walls.push({ x: x, y: y });
+        }
+    }
+
+    return walls;
+};
+
+/**
+ * Build the initial game state object.
+ * @returns {object} Fresh game state.
+ */
+const createGame = function () {
+
+    const cores = [
+        { owner: PLAYER_1, x: 0, y: 0, hp: 20 },
+        { owner: PLAYER_2, x: 5, y: 5, hp: 20 }
+    ];
+
+    const units = [
+        {
+            id: 1,
+            owner: PLAYER_1,
+            class_name: "Agent",
+            x: 0,
+            y: 1,
+            hp: 5,
+            max_hp: 5,
+            movement: 1,
+            status: null,       // "slowed" | null – set by malware hits
+            inventory: [createWeapon("ping")]
+        },
+        {
+            id: 2,
+            owner: PLAYER_2,
+            class_name: "Agent",
+            x: 5,
+            y: 4,
+            hp: 5,
+            max_hp: 5,
+            movement: 1,
+            status: null,
+            inventory: [createWeapon("ping")]
+        }
+    ];
+
+    return {
+        current_player: PLAYER_1,
+        winner: EMPTY,
+        selected_unit_id: null,
+        selected_weapon_index: 0,
+        turn_count: 0,
+        board_size: BOARD_SIZE,
+        cores: cores,
+        units: units,
+        weapon_drops: [],
+        firewalls: generateFirewalls(units, cores, BOARD_SIZE),
+        // each entry: { owner, turns_left, next_id }
+        respawn_queue: []
+    };
+};
+
+/**
+ * Manhattan distance between two tiles.
+ * @param {number} x1
+ * @param {number} y1
+ * @param {number} x2
+ * @param {number} y2
+ * @returns {number}
+ */
+const getDistance = function (x1, y1, x2, y2) {
+    return Math.abs(x1 - x2) + Math.abs(y1 - y2);
+};
+
+/**
+ * Returns the unit at (x, y), or undefined if the tile is empty.
+ * @param {number} x
+ * @param {number} y
+ * @param {GameState} game
+ * @returns {Unit|undefined}
+ */
+const getUnitAtPosition = function (x, y, game) {
+    return game.units.find(function (u) {
+        return u.x === x &amp;&amp; u.y === y;
+    });
+};
+
+/**
+ * Returns the core (server) at (x, y), or undefined.
+ * @param {number} x
+ * @param {number} y
+ * @param {GameState} game
+ * @returns {Core|undefined}
+ */
+const getCoreAtPosition = function (x, y, game) {
+    return game.cores.find(function (c) {
+        return c.x === x &amp;&amp; c.y === y;
+    });
+};
+
+/**
+ * Returns the weapon drop (data-cache) at (x, y), or undefined.
+ * @param {number} x
+ * @param {number} y
+ * @param {GameState} game
+ * @returns {object|undefined}
+ */
+const getWeaponAtPosition = function (x, y, game) {
+    return game.weapon_drops.find(function (d) {
+        return d.x === x &amp;&amp; d.y === y;
+    });
+};
+
+/**
+ * Returns the firewall tile at (x, y), or undefined.
+ * @param {number} x
+ * @param {number} y
+ * @param {GameState} game
+ * @returns {object|undefined}
+ */
+const getFirewallAtPosition = function (x, y, game) {
+    return game.firewalls.find(function (f) {
+        return f.x === x &amp;&amp; f.y === y;
+    });
+};
+
+/**
+ * Select or deselect a unit. Clicking the same unit twice deselects it.
+ * @param {number} unit_id
+ * @param {GameState} game
+ * @returns {GameState}
+ */
+const selectUnit = function (unit_id, game) {
+    return {
+        ...game,
+        selected_unit_id:
+            game.selected_unit_id === unit_id
+            ? null
+            : unit_id
+    };
+};
+
+/**
+ * Set the active weapon slot index for the current player.
+ * @param {number} index
+ * @param {GameState} game
+ * @returns {GameState}
+ */
+const selectWeapon = function (index, game) {
+    return { ...game, selected_weapon_index: index };
+};
+
+/**
+ * Add a weapon to a unit's inventory.
+ * Drops the oldest item if already at the limit (FIFO).
+ */
+const addWeaponToInventory = function (unit, weapon_type) {
+
+    const inventory = [...unit.inventory, createWeapon(weapon_type)];
+
+    if (inventory.length > INVENTORY_LIMIT) {
+        inventory.shift();  // drop oldest – FIFO
+    }
+
+    return { ...unit, inventory: inventory };
+};
+
+export {
+    BOARD_SIZE,
+    PLAYER_1,
+    PLAYER_2,
+    EMPTY,
+    INVENTORY_LIMIT,
+    WEAPONS,
+    RESPAWN_DELAY,
+    createWeapon,
+    createGame,
+    getDistance,
+    getUnitAtPosition,
+    getCoreAtPosition,
+    getWeaponAtPosition,
+    getFirewallAtPosition,
+    selectUnit,
+    selectWeapon,
+    addWeaponToInventory
+};</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Thu Jun 25 2026 11:59:55 GMT+0100 (British Summer Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+    <link type="text/css" rel="stylesheet" href="custom.css">
+    
+</body>
+</html>

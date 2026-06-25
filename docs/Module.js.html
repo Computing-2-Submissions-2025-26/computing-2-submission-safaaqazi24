@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>Module.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-NET_BREACH.html">NET_BREACH</a><ul class='methods'><li data-type='method'><a href="module-NET_BREACH.html#~addWeaponToInventory">addWeaponToInventory</a></li><li data-type='method'><a href="module-NET_BREACH.html#~createGame">createGame</a></li><li data-type='method'><a href="module-NET_BREACH.html#~generateFirewalls">generateFirewalls</a></li><li data-type='method'><a href="module-NET_BREACH.html#~getCoreAtPosition">getCoreAtPosition</a></li><li data-type='method'><a href="module-NET_BREACH.html#~getDistance">getDistance</a></li><li data-type='method'><a href="module-NET_BREACH.html#~getFirewallAtPosition">getFirewallAtPosition</a></li><li data-type='method'><a href="module-NET_BREACH.html#~getUnitAtPosition">getUnitAtPosition</a></li><li data-type='method'><a href="module-NET_BREACH.html#~getWeaponAtPosition">getWeaponAtPosition</a></li><li data-type='method'><a href="module-NET_BREACH.html#~selectUnit">selectUnit</a></li><li data-type='method'><a href="module-NET_BREACH.html#~selectWeapon">selectWeapon</a></li></ul></li><li></li></ul><h3>Global</h3><ul><li><a href="global.html#Core">Core</a></li><li><a href="global.html#GameState">GameState</a></li><li><a href="global.html#RespawnEntry">RespawnEntry</a></li><li><a href="global.html#Unit">Unit</a></li><li><a href="global.html#Weapon">Weapon</a></li><li><a href="global.html#attackCore">attackCore</a></li><li><a href="global.html#attackUnit">attackUnit</a></li><li><a href="global.html#endTurn">endTurn</a></li><li><a href="global.html#getReachableTiles">getReachableTiles</a></li><li><a href="global.html#hasLineOfSight">hasLineOfSight</a></li><li><a href="global.html#inBounds">inBounds</a></li><li><a href="global.html#moveSelectedUnit">moveSelectedUnit</a></li><li><a href="global.html#playBotTurn">playBotTurn</a></li><li><a href="global.html#processRespawnQueue">processRespawnQueue</a></li><li><a href="global.html#spawnWeaponDrop">spawnWeaponDrop</a></li></ul>
+    
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">Module.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>﻿/**
+ * @file NET//BREACH game module.
+ * @module NET_BREACH
+ *
+ * @description
+ * Pure-functional state machine for a two-player cyber-warfare tactics game
+ * played on a 6x6 network grid.
+ *
+ * Each player controls one Agent. Goal: reduce the enemy Server to 0 HP.
+ * All functions return new state objects – nothing is mutated in place.
+ *
+ *   - Firewall tiles block both movement and ranged line-of-sight
+ *   - Agents can attack each other directly (unit vs unit)
+ *   - Malware applies a "slowed" status effect for one turn
+ *   - Phishing steals the target's first non-ping weapon
+ *   - Dead agents are queued for respawn after RESPAWN_DELAY turns
+ *   - Bresenham LOS check for any weapon with range > 1
+ */
+
+export { createGame } from "./game-state.js";
+export { moveSelectedUnit, attackCore, attackUnit, spawnWeaponDrop, hasLineOfSight } from "./game-rules.js";
+
+/**
+ * @typedef {object} Weapon
+ * @property {number} id        - Unique ID (Date.now + random)
+ * @property {string} type      - "ping" | "phishing" | "malware" | "zero_day"
+ * @property {string} name      - Display name
+ * @property {number} damage    - HP removed per hit
+ * @property {number} range     - Maximum Manhattan distance for attack
+ * @property {number|Infinity} uses - Remaining uses; Infinity for ping
+ */
+
+/**
+ * @typedef {object} Unit
+ * @property {number}   id         - Unique unit ID
+ * @property {number}   owner      - PLAYER_1 | PLAYER_2
+ * @property {string}   class_name - Always "Agent" for now
+ * @property {number}   x          - Column (0–5)
+ * @property {number}   y          - Row (0–5)
+ * @property {number}   hp         - Current hit points
+ * @property {number}   max_hp     - Max hit points (5)
+ * @property {number}   movement   - Tiles per turn (1)
+ * @property {string|null} status  - "slowed" | null
+ * @property {Weapon[]} inventory  - Up to INVENTORY_LIMIT weapons (FIFO)
+ */
+
+/**
+ * @typedef {object} Core
+ * @property {number} owner - PLAYER_1 | PLAYER_2
+ * @property {number} x
+ * @property {number} y
+ * @property {number} hp   - Current HP (starts at 20)
+ */
+
+/**
+ * @typedef {object} RespawnEntry
+ * @property {number} owner       - Which player's agent is respawning
+ * @property {number} turns_left  - Turns until spawn
+ * @property {number} next_id     - ID the new agent will get
+ */
+
+/**
+ * @typedef {object} GameState
+ * @property {number}          current_player       - Whose turn it is
+ * @property {number}          winner               - EMPTY | PLAYER_1 | PLAYER_2
+ * @property {number|null}     selected_unit_id     - ID of currently selected unit
+ * @property {number}          selected_weapon_index
+ * @property {number}          turn_count
+ * @property {number}          board_size           - 6
+ * @property {Core[]}          cores
+ * @property {Unit[]}          units
+ * @property {object[]}        weapon_drops         - Data-caches on the board
+ * @property {object[]}        firewalls            - Impassable tiles {x,y}
+ * @property {RespawnEntry[]}  respawn_queue
+ */
+
+/**
+ * Create a fresh game state with randomised firewall positions.
+ * @returns {GameState}
+ */
+
+/**
+ * Move the selected agent to (x, y).
+ * Fails silently (returns same state) if the move is illegal.
+ * Slowed agents cannot move.
+ * @param {number}    x
+ * @param {number}    y
+ * @param {GameState} game
+ * @returns {GameState}
+ */
+
+/**
+ * Fire an exploit at the enemy server at (x, y).
+ * Ranged weapons require an unobstructed Bresenham line of sight.
+ * @param {number}    x
+ * @param {number}    y
+ * @param {GameState} game
+ * @returns {GameState}
+ */
+
+/**
+ * Attack the enemy agent standing at (x, y).
+ * Malware slows the target for one turn.
+ * Phishing copies the target's first non-ping weapon.
+ * A killed agent enters the respawn queue.
+ * @param {number}    x
+ * @param {number}    y
+ * @param {GameState} game
+ * @returns {GameState}
+ */
+
+/**
+ * Check whether there is an unobstructed straight line from
+ * (x1,y1) to (x2,y2), treating firewalls as opaque blockers.
+ * Uses Bresenham's line algorithm.
+ * @param {number}   x1
+ * @param {number}   y1
+ * @param {number}   x2
+ * @param {number}   y2
+ * @param {object[]} firewalls
+ * @returns {boolean}
+ */
+
+/**
+ * Attempt to place a random data-cache on the board.
+ * Only runs on turns divisible by 3; skips if no free tile is found.
+ * @param {GameState} game
+ * @returns {GameState}
+ */</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Thu Jun 25 2026 11:59:55 GMT+0100 (British Summer Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+    <link type="text/css" rel="stylesheet" href="custom.css">
+    
+</body>
+</html>

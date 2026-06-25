@@ -6,9 +6,11 @@
         "include": [
             "web-app/Module.js",
             "web-app/game-state.js",
-            "web-app/game-rules.js"
+            "web-app/game-rules.js",
+            "web-app/bot-ai.js",
+            "web-app/render-board.js"
         ],
-        "includePattern": "\.js$",
+        "includePattern": "\\.js$",
         "excludePattern": "(node_modules/|docs)"
     },
     "plugins": [

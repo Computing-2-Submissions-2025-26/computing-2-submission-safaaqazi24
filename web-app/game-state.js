@@ -76,15 +76,16 @@ const createWeapon = function (type) {
  */
 const generateFirewalls = function (units, cores, board_size) {
 
-    // build a list of tiles we must keep clear
-    const off_limits = [];
+    // build a lookup of tiles we must keep clear – a plain object key
+    // check avoids creating a new .some() closure on every loop attempt
+    const off_limit_keys = {};
 
     units.forEach(function (u) {
-        off_limits.push({ x: u.x, y: u.y });
+        off_limit_keys[u.x + "," + u.y] = true;
     });
 
     cores.forEach(function (c) {
-        off_limits.push({ x: c.x, y: c.y });
+        off_limit_keys[c.x + "," + c.y] = true;
     });
 
     // buffer tiles around each spawn so the game isn't immediately blocked
@@ -94,9 +95,10 @@ const generateFirewalls = function (units, cores, board_size) {
     ];
 
     buffer.forEach(function (b) {
-        off_limits.push(b);
+        off_limit_keys[b.x + "," + b.y] = true;
     });
 
+    const wall_keys = {};
     const walls = [];
     let tries = 0;
 
@@ -106,16 +108,10 @@ const generateFirewalls = function (units, cores, board_size) {
 
         const x = Math.floor(Math.random() * board_size);
         const y = Math.floor(Math.random() * board_size);
+        const key = x + "," + y;
 
-        const taken = off_limits.some(function (t) {
-            return t.x === x && t.y === y;
-        });
-
-        const already = walls.some(function (w) {
-            return w.x === x && w.y === y;
-        });
-
-        if (!taken && !already) {
+        if (!off_limit_keys[key] && !wall_keys[key]) {
+            wall_keys[key] = true;
             walls.push({ x: x, y: y });
         }
     }

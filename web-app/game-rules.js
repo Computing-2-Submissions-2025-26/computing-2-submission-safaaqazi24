@@ -258,17 +258,9 @@ const getReachableTiles = function (unit, game) {
 
     visited[unit.x + "," + unit.y] = true;
 
-    while (queue.length > 0) {
-
-        const current = queue.shift();
-
-        if (current.steps > 0) {
-            reachable.push({ x: current.x, y: current.y });
-        }
-
-        if (current.steps >= max_steps) {
-            continue;
-        }
+    // defined once, outside the loop, so no closure is created per
+    // iteration (jslint forbids function literals inside loop bodies)
+    const expandFrom = function (current) {
 
         const dirs = [
             { x: current.x + 1, y: current.y },
@@ -307,6 +299,19 @@ const getReachableTiles = function (unit, game) {
             visited[key] = true;
             queue.push({ x: n.x, y: n.y, steps: current.steps + 1 });
         });
+    };
+
+    while (queue.length > 0) {
+
+        const current = queue.shift();
+
+        if (current.steps > 0) {
+            reachable.push({ x: current.x, y: current.y });
+        }
+
+        if (current.steps < max_steps) {
+            expandFrom(current);
+        }
     }
 
     return reachable;

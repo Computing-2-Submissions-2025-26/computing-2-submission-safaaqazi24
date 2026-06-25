@@ -159,13 +159,25 @@ const endTurn = function (game) {
     let next = clearStatusEffects(game);
     next = processRespawnQueue(next);
 
-    return {
+    next = {
         ...next,
         current_player: next.current_player === PLAYER_1 ? PLAYER_2 : PLAYER_1,
         selected_unit_id: null,
         selected_weapon_index: 0,
         turn_count: next.turn_count + 1
     };
+
+    // the player whose turn it now is might still be dead/respawning – keep
+    // advancing turns (which ticks the respawn queue) instead of softlocking
+    const has_unit = next.units.some(function (u) {
+        return u.owner === next.current_player;
+    });
+
+    if (!has_unit && next.respawn_queue.length > 0) {
+        return endTurn(next);
+    }
+
+    return next;
 };
 
 // reduce a weapons uses by one and remove it if depleted
@@ -493,6 +505,7 @@ const attackUnit = function (x, y, game) {
 
     let new_target_status = target.status;
     let updated_attacker = useWeapon(attacker, game.selected_weapon_index);
+    let updated_target_inventory = target.inventory;
 
     if (weapon.type === "malware") {
         new_target_status = "slowed";
@@ -504,6 +517,13 @@ const attackUnit = function (x, y, game) {
         });
         if (stealable) {
             updated_attacker = addWeaponToInventory(updated_attacker, stealable.type);
+            // phishing steals the weapon outright – the enemy loses it, not just a copy
+            updated_target_inventory = target.inventory.filter(function (w) {
+                return w.id !== stealable.id;
+            });
+            if (updated_target_inventory.length === 0) {
+                updated_target_inventory = [{ type: "ping", ...WEAPONS.ping, id: Date.now() + Math.random() }];
+            }
         }
     }
 
@@ -528,7 +548,7 @@ const attackUnit = function (x, y, game) {
 
         updated_units = game.units.map(function (u) {
             if (u.id === target.id) {
-                return { ...u, hp: new_hp, status: new_target_status };
+                return { ...u, hp: new_hp, status: new_target_status, inventory: updated_target_inventory };
             }
             if (u.id === attacker.id) {
                 return updated_attacker;

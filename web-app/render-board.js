@@ -100,6 +100,7 @@ const weaponBadgeColor = function (type) {
     if (type === "malware")  { return "#39ff14"; }
     if (type === "zero_day") { return "#ff2244"; }
     if (type === "emp")      { return "#cc44ff"; }
+    if (type === "overclock") { return "#ffffff"; }
     return "#4a9fff";  // ping – default blue
 };
 
@@ -108,6 +109,7 @@ const weaponBadgeLabel = function (type) {
     if (type === "malware")  { return "MLW"; }
     if (type === "zero_day") { return "0-DAY"; }
     if (type === "emp")      { return "EMP"; }
+    if (type === "overclock") { return "OCK"; }
     return "PNG";
 };
 

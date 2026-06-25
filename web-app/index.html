@@ -12,10 +12,16 @@
     <p class="tagline">two rogue agents &nbsp;|&nbsp; one network &nbsp;|&nbsp; destroy the enemy server</p>
 </header>
 
+<div id="start-menu" role="dialog" aria-label="Game setup">
+    <h2>SELECT OPPONENT</h2>
+    <button id="vs-bot-btn" class="menu-btn">PLAY VS BOT</button>
+    <button id="vs-human-btn" class="menu-btn">PLAY VS HUMAN</button>
+</div>
+
 <div id="status" role="status" aria-live="polite"></div>
 <p id="message" role="alert" aria-live="assertive"></p>
 
-<main>
+<main id="game-main" class="hidden">
     <div class="layout">
 
         <section id="board" role="grid" aria-label="Network grid" aria-describedby="board-desc">

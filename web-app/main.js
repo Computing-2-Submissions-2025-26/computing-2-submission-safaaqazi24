@@ -17,10 +17,17 @@ import {
     renderBoard
 } from "./render-board.js";
 
+import {
+    playBotTurn
+} from "./bot-ai.js";
+
 let game = createGame();
 
 // keeps the last 5 actions for the comms log panel
 let game_log = [];
+
+// set once from the start menu – true means player 2 is run by playBotTurn
+let vs_bot = false;
 
 const addLog = function (msg) {
     game_log = [msg].concat(game_log).slice(0, 5);
@@ -34,6 +41,20 @@ const onWeaponClick = function (index) {
 
 const rerender = function () {
     renderBoard(game, onCellClick, onWeaponClick, game_log);
+};
+
+// after a human action ends the turn, let the bot take its turn automatically
+const maybeRunBotTurn = function () {
+
+    if (!vs_bot || game.current_player !== 2 || game.winner !== 0) {
+        return;
+    }
+
+    setTimeout(function () {
+        game = spawnWeaponDrop(playBotTurn(game));
+        addLog("AG-02 (bot) acted");
+        rerender();
+    }, 450);
 };
 
 // show a flash message for a moment then restore the status text
@@ -71,6 +92,11 @@ const onCellClick = function (x, y) {
         return;  // game over – ignore clicks
     }
 
+    // bot's turn – ignore board clicks until it's the human's turn again
+    if (vs_bot && game.current_player === 2) {
+        return;
+    }
+
     const clicked_unit = getUnitAtPosition(x, y, game);
 
     // clicking own agent selects / deselects it
@@ -90,6 +116,7 @@ const onCellClick = function (x, y) {
             addLog("AG-0" + game.current_player + " fired " + w_name + " at AG-0" + clicked_unit.owner);
             game = spawnWeaponDrop(result);
             rerender();
+            maybeRunBotTurn();
             return;
         }
         flashMessage("OUT OF RANGE");
@@ -105,6 +132,7 @@ const onCellClick = function (x, y) {
         addLog("AG-0" + game.current_player + " hit enemy SERVER with " + w_name);
         game = spawnWeaponDrop(after_attack);
         rerender();
+        maybeRunBotTurn();
         return;
     }
 
@@ -114,6 +142,7 @@ const onCellClick = function (x, y) {
         addLog("AG-0" + game.current_player + " moved to (" + x + "," + y + ")");
         game = spawnWeaponDrop(after_move);
         rerender();
+        maybeRunBotTurn();
         return;
     }
 
@@ -124,6 +153,10 @@ const onCellClick = function (x, y) {
 document.addEventListener("keydown", function (event) {
 
     if (game.winner !== 0) {
+        return;
+    }
+
+    if (vs_bot && game.current_player === 2) {
         return;
     }
 
@@ -163,4 +196,21 @@ document.addEventListener("keydown", function (event) {
     rerender();
 });
 
-rerender();
+// start menu – picks who player 2 is before the board ever shows
+const startGame = function (opponent_is_bot) {
+
+    vs_bot = opponent_is_bot;
+
+    document.getElementById("start-menu").classList.add("hidden");
+    document.getElementById("game-main").classList.remove("hidden");
+
+    rerender();
+};
+
+document.getElementById("vs-bot-btn").addEventListener("click", function () {
+    startGame(true);
+});
+
+document.getElementById("vs-human-btn").addEventListener("click", function () {
+    startGame(false);
+});

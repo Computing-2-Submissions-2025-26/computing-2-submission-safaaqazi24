@@ -2,8 +2,7 @@ import {
     createGame,
     getUnitAtPosition,
     selectUnit,
-    selectWeapon,
-    WEAPONS
+    selectWeapon
 } from "./game-state.js";
 
 import {

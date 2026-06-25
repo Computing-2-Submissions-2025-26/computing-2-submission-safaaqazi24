@@ -17,14 +17,23 @@
  *   - Bresenham LOS check for any weapon with range > 1
  */
 
-export { createGame } from "./game-state.js";
-export {
+import {createGame} from "./game-state.js";
+import {
     moveSelectedUnit,
     attackCore,
     attackUnit,
     spawnWeaponDrop,
     hasLineOfSight
 } from "./game-rules.js";
+
+export {
+    createGame,
+    moveSelectedUnit,
+    attackCore,
+    attackUnit,
+    spawnWeaponDrop,
+    hasLineOfSight
+};
 
 /**
  * @typedef {object} Weapon

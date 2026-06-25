@@ -27,23 +27,23 @@ const svgAgent = function (color, highlight_color, status) {
 
     const slowed_bar = (
         status === "slowed"
-        ? "<rect x='5' y='3' width='34' height='6' rx='2'" +
-            " fill='#ff8800' opacity='0.8'/>"
+        ? "<rect x=\"5\" y=\"3\" width=\"34\" height=\"6\" rx=\"2\"" +
+            " fill=\"#ff8800\" opacity=\"0.8\"/>"
         : ""
     );
 
     return (
-        "<svg width='44' height='44' viewBox='0 0 44 44'" +
-        " xmlns='http://www.w3.org/2000/svg'" + dim + ">" +
+        "<svg width=\"44\" height=\"44\" viewBox=\"0 0 44 44\"" +
+        " xmlns=\"http://www.w3.org/2000/svg\"" + dim + ">" +
         // hex body
-        "<polygon points='22,3 39,12.5 39,31.5 22,41 5,31.5 5,12.5'" +
-        " fill='" + color + "' stroke='" + highlight_color +
-        "' stroke-width='1.5'/>" +
+        "<polygon points=\"22,3 39,12.5 39,31.5 22,41 5,31.5 5,12.5\"" +
+        " fill=\"" + color + "\" stroke=\"" + highlight_color +
+        "\" stroke-width=\"1.5\"/>" +
         // visor strip
-        "<rect x='13' y='17' width='18' height='6' rx='2'" +
-        " fill='rgba(0,0,0,0.6)'/>" +
-        "<rect x='14' y='18' width='16' height='4' rx='1.5' fill='" +
-        highlight_color + "' opacity='0.9'/>" +
+        "<rect x=\"13\" y=\"17\" width=\"18\" height=\"6\" rx=\"2\"" +
+        " fill=\"rgba(0,0,0,0.6)\"/>" +
+        "<rect x=\"14\" y=\"18\" width=\"16\" height=\"4\" rx=\"1.5\"" +
+        " fill=\"" + highlight_color + "\" opacity=\"0.9\"/>" +
         // slowed indicator – orange tint bar at top
         slowed_bar +
         "</svg>"
@@ -53,21 +53,24 @@ const svgAgent = function (color, highlight_color, status) {
 // server rack – horizontal bands with a small LED dot
 const svgServer = function (border_color) {
     return (
-        "<svg width='48' height='48' viewBox='0 0 48 48'" +
-        " xmlns='http://www.w3.org/2000/svg'>" +
-        "<rect x='4' y='5' width='40' height='38' rx='3'" +
-        " fill='#0b1a2e' stroke='" + border_color + "' stroke-width='1.5'/>" +
+        "<svg width=\"48\" height=\"48\" viewBox=\"0 0 48 48\"" +
+        " xmlns=\"http://www.w3.org/2000/svg\">" +
+        "<rect x=\"4\" y=\"5\" width=\"40\" height=\"38\" rx=\"3\"" +
+        " fill=\"#0b1a2e\" stroke=\"" + border_color +
+        "\" stroke-width=\"1.5\"/>" +
         // rack slots
-        "<rect x='8' y='11' width='26' height='5' rx='1' fill='" +
-        border_color + "' opacity='0.45'/>" +
-        "<rect x='8' y='20' width='26' height='5' rx='1' fill='" +
-        border_color + "' opacity='0.45'/>" +
-        "<rect x='8' y='29' width='26' height='5' rx='1' fill='" +
-        border_color + "' opacity='0.45'/>" +
+        "<rect x=\"8\" y=\"11\" width=\"26\" height=\"5\" rx=\"1\"" +
+        " fill=\"" + border_color + "\" opacity=\"0.45\"/>" +
+        "<rect x=\"8\" y=\"20\" width=\"26\" height=\"5\" rx=\"1\"" +
+        " fill=\"" + border_color + "\" opacity=\"0.45\"/>" +
+        "<rect x=\"8\" y=\"29\" width=\"26\" height=\"5\" rx=\"1\"" +
+        " fill=\"" + border_color + "\" opacity=\"0.45\"/>" +
         // LED indicators
-        "<circle cx='38' cy='13' r='2.5' fill='#00ff88'/>" +
-        "<circle cx='38' cy='22' r='2.5' fill='#00ff88' opacity='0.5'/>" +
-        "<circle cx='38' cy='31' r='2.5' fill='#ff4444' opacity='0.4'/>" +
+        "<circle cx=\"38\" cy=\"13\" r=\"2.5\" fill=\"#00ff88\"/>" +
+        "<circle cx=\"38\" cy=\"22\" r=\"2.5\" fill=\"#00ff88\"" +
+        " opacity=\"0.5\"/>" +
+        "<circle cx=\"38\" cy=\"31\" r=\"2.5\" fill=\"#ff4444\"" +
+        " opacity=\"0.4\"/>" +
         "</svg>"
     );
 };
@@ -75,12 +78,16 @@ const svgServer = function (border_color) {
 // USB drive shape for data-caches
 const svgCache = function () {
     return (
-        "<svg width='38' height='38' viewBox='0 0 38 38'" +
-        " xmlns='http://www.w3.org/2000/svg'>" +
-        "<rect x='12' y='18' width='14' height='16' rx='2' fill='#ffe600'/>" +
-        "<rect x='15' y='9' width='8' height='11' rx='1' fill='#ccb800'/>" +
-        "<rect x='17' y='4' width='4' height='7' rx='1' fill='#888'/>" +
-        "<rect x='15' y='22' width='8' height='4' rx='1' fill='#aa9900'/>" +
+        "<svg width=\"38\" height=\"38\" viewBox=\"0 0 38 38\"" +
+        " xmlns=\"http://www.w3.org/2000/svg\">" +
+        "<rect x=\"12\" y=\"18\" width=\"14\" height=\"16\" rx=\"2\"" +
+        " fill=\"#ffe600\"/>" +
+        "<rect x=\"15\" y=\"9\" width=\"8\" height=\"11\" rx=\"1\"" +
+        " fill=\"#ccb800\"/>" +
+        "<rect x=\"17\" y=\"4\" width=\"4\" height=\"7\" rx=\"1\"" +
+        " fill=\"#888\"/>" +
+        "<rect x=\"15\" y=\"22\" width=\"8\" height=\"4\" rx=\"1\"" +
+        " fill=\"#aa9900\"/>" +
         "</svg>"
     );
 };
@@ -88,32 +95,34 @@ const svgCache = function () {
 // firewall tile – brick-style with diagonal cross
 const svgFirewall = function () {
 
-    const brick = " rx='1' fill='none' stroke='#8b1a00' stroke-width='1.2'/>";
+    const brick = (
+        " rx=\"1\" fill=\"none\" stroke=\"#8b1a00\" stroke-width=\"1.2\"/>"
+    );
 
     return (
-        "<svg width='86' height='86' viewBox='0 0 86 86'" +
-        " xmlns='http://www.w3.org/2000/svg'>" +
-        "<rect width='86' height='86' fill='#1a0400'/>" +
+        "<svg width=\"86\" height=\"86\" viewBox=\"0 0 86 86\"" +
+        " xmlns=\"http://www.w3.org/2000/svg\">" +
+        "<rect width=\"86\" height=\"86\" fill=\"#1a0400\"/>" +
         // brick rows – offset every other row
-        "<rect x='1'  y='1'  width='40' height='18'" + brick +
-        "<rect x='43' y='1'  width='42' height='18'" + brick +
-        "<rect x='1'  y='21' width='20' height='18'" + brick +
-        "<rect x='23' y='21' width='40' height='18'" + brick +
-        "<rect x='65' y='21' width='20' height='18'" + brick +
-        "<rect x='1'  y='41' width='40' height='18'" + brick +
-        "<rect x='43' y='41' width='42' height='18'" + brick +
-        "<rect x='1'  y='61' width='20' height='18'" + brick +
-        "<rect x='23' y='61' width='40' height='18'" + brick +
-        "<rect x='65' y='61' width='20' height='18'" + brick +
+        "<rect x=\"1\"  y=\"1\"  width=\"40\" height=\"18\"" + brick +
+        "<rect x=\"43\" y=\"1\"  width=\"42\" height=\"18\"" + brick +
+        "<rect x=\"1\"  y=\"21\" width=\"20\" height=\"18\"" + brick +
+        "<rect x=\"23\" y=\"21\" width=\"40\" height=\"18\"" + brick +
+        "<rect x=\"65\" y=\"21\" width=\"20\" height=\"18\"" + brick +
+        "<rect x=\"1\"  y=\"41\" width=\"40\" height=\"18\"" + brick +
+        "<rect x=\"43\" y=\"41\" width=\"42\" height=\"18\"" + brick +
+        "<rect x=\"1\"  y=\"61\" width=\"20\" height=\"18\"" + brick +
+        "<rect x=\"23\" y=\"61\" width=\"40\" height=\"18\"" + brick +
+        "<rect x=\"65\" y=\"61\" width=\"20\" height=\"18\"" + brick +
         // diagonal cross
-        "<line x1='8' y1='8' x2='78' y2='78' stroke='#cc2200'" +
-        " stroke-width='1.5' opacity='0.5'/>" +
-        "<line x1='78' y1='8' x2='8' y2='78' stroke='#cc2200'" +
-        " stroke-width='1.5' opacity='0.5'/>" +
+        "<line x1=\"8\" y1=\"8\" x2=\"78\" y2=\"78\" stroke=\"#cc2200\"" +
+        " stroke-width=\"1.5\" opacity=\"0.5\"/>" +
+        "<line x1=\"78\" y1=\"8\" x2=\"8\" y2=\"78\" stroke=\"#cc2200\"" +
+        " stroke-width=\"1.5\" opacity=\"0.5\"/>" +
         // label
-        "<text x='43' y='50' text-anchor='middle' fill='#cc2200'" +
-        " font-size='8' font-family='monospace' letter-spacing='2'" +
-        " opacity='0.9'>FIREWALL</text>" +
+        "<text x=\"43\" y=\"50\" text-anchor=\"middle\" fill=\"#cc2200\"" +
+        " font-size=\"8\" font-family=\"monospace\" letter-spacing=\"2\"" +
+        " opacity=\"0.9\">FIREWALL</text>" +
         "</svg>"
     );
 };
@@ -158,6 +167,19 @@ const weaponBadgeLabel = function (type) {
     return "PNG";
 };
 
+// checks if the selected agent's active weapon can reach (x, y)
+const inAttackRange = function (selected_unit, game, x, y) {
+    const active_weapon = (
+        selected_unit.inventory[game.selected_weapon_index] ||
+        selected_unit.inventory[0]
+    );
+    if (!active_weapon) {
+        return false;
+    }
+    const range_dist = getDistance(selected_unit.x, selected_unit.y, x, y);
+    return range_dist <= active_weapon.range;
+};
+
 // ─── Tile builder ──────────
 // reachable_tiles is computed once per render pass, then passed in here
 const renderTile = function (x, y, game, onCellClick, reachable_tiles) {
@@ -196,31 +218,19 @@ const renderTile = function (x, y, game, onCellClick, reachable_tiles) {
     }
 
     // pulse enemy server if it's in attack range
-    if (selected_unit && core && core.owner !== selected_unit.owner) {
-        const weapon = (
-            selected_unit.inventory[game.selected_weapon_index] ||
-            selected_unit.inventory[0]
-        );
-        if (weapon) {
-            const dist = getDistance(selected_unit.x, selected_unit.y, x, y);
-            if (dist <= weapon.range) {
-                tile.classList.add("attackable");
-            }
-        }
+    if (
+        selected_unit && core && core.owner !== selected_unit.owner &&
+        inAttackRange(selected_unit, game, x, y)
+    ) {
+        tile.classList.add("attackable");
     }
 
     // highlight enemy units in attack range too
-    if (selected_unit && unit && unit.owner !== selected_unit.owner) {
-        const weapon = (
-            selected_unit.inventory[game.selected_weapon_index] ||
-            selected_unit.inventory[0]
-        );
-        if (weapon) {
-            const dist = getDistance(selected_unit.x, selected_unit.y, x, y);
-            if (dist <= weapon.range) {
-                tile.classList.add("attackable");
-            }
-        }
+    if (
+        selected_unit && unit && unit.owner !== selected_unit.owner &&
+        inAttackRange(selected_unit, game, x, y)
+    ) {
+        tile.classList.add("attackable");
     }
 
     // ── firewall ───────────────
@@ -246,15 +256,16 @@ const renderTile = function (x, y, game, onCellClick, reachable_tiles) {
         );
         tile.classList.add(core_class);
 
-        const hp_pct = Math.max(0, core.hp / 20 * 100);
+        const core_hp_pct = Math.max(0, core.hp / 20 * 100);
 
         tile.innerHTML = (
             svgServer(border) +
-            '<div class="core-label">SERVER</div>' +
-            '<div class="hp-bar-wrap">' +
-            '<div class="hp-bar" style="width:' + hp_pct + '%"></div>' +
+            "<div class=\"core-label\">SERVER</div>" +
+            "<div class=\"hp-bar-wrap\">" +
+            "<div class=\"hp-bar\" style=\"width:" + core_hp_pct +
+            "%\"></div>" +
             "</div>" +
-            '<div class="hp">' + core.hp + "/20</div>"
+            "<div class=\"hp\">" + core.hp + "/20</div>"
         );
 
         tile.addEventListener("click", click_handler);
@@ -293,41 +304,41 @@ const renderTile = function (x, y, game, onCellClick, reachable_tiles) {
         }
 
         // show the currently equipped weapon as a small badge
-        const weapon = (
+        const equipped = (
             unit.inventory[game.selected_weapon_index] || unit.inventory[0]
         );
         const badge_col = (
-            weapon
-            ? weaponBadgeColor(weapon.type)
+            equipped
+            ? weaponBadgeColor(equipped.type)
             : "#4a9fff"
         );
         const badge_lbl = (
-            weapon
-            ? weaponBadgeLabel(weapon.type)
+            equipped
+            ? weaponBadgeLabel(equipped.type)
             : "PNG"
         );
 
-        const hp_pct = unit.hp / unit.max_hp * 100;
+        const unit_hp_pct = unit.hp / unit.max_hp * 100;
 
         // green blink dot if it's this unit's turn to act
         const active_dot = (
             unit.owner === game.current_player
-            ? '<div class="active-dot"></div>'
+            ? "<div class=\"active-dot\"></div>"
             : ""
         );
 
         const hp_bar = (
-            '<div class="unit-hp-bar"><div class="unit-hp-fill"' +
-            ' style="width:' + hp_pct + '%;background:' + hi_color +
-            '"></div></div>'
+            "<div class=\"unit-hp-bar\"><div class=\"unit-hp-fill\"" +
+            " style=\"width:" + unit_hp_pct + "%;background:" + hi_color +
+            "\"></div></div>"
         );
 
         tile.innerHTML = (
             svgAgent(color, hi_color, unit.status) +
             active_dot +
-            '<div class="unit-label">' + label + "</div>" +
-            '<div class="weapon-badge" style="background:' + badge_col +
-            '">' + badge_lbl + "</div>" +
+            "<div class=\"unit-label\">" + label + "</div>" +
+            "<div class=\"weapon-badge\" style=\"background:" +
+            badge_col + "\">" + badge_lbl + "</div>" +
             hp_bar
         );
 
@@ -339,15 +350,16 @@ const renderTile = function (x, y, game, onCellClick, reachable_tiles) {
     if (drop) {
         tile.classList.add("weapon-drop");
         const w = WEAPONS[drop.type];
+        const drop_name = (
+            w
+            ? w.name
+            : drop.type
+        );
         tile.innerHTML = (
             svgCache() +
-            '<div class="drop-label" style="color:' +
-            weaponBadgeColor(drop.type) + '">' +
-            (
-                w
-                ? w.name
-                : drop.type
-            ) +
+            "<div class=\"drop-label\" style=\"color:" +
+            weaponBadgeColor(drop.type) + "\">" +
+            drop_name +
             "</div>"
         );
         tile.addEventListener("click", click_handler);
@@ -372,7 +384,7 @@ const renderInventory = function (game, onWeaponClick) {
 
     if (!selected_unit) {
         aside.innerHTML += (
-            '<p class="hint">Select your agent<br>to view loaded' +
+            "<p class=\"hint\">Select your agent<br>to view loaded" +
             " exploits.<br><br>Q / E to cycle.</p>"
         );
         return;
@@ -416,12 +428,12 @@ const renderInventory = function (game, onWeaponClick) {
         );
 
         btn.innerHTML = (
-            '<span class="inv-badge" style="background:' + badge_col +
-            '">' +
+            "<span class=\"inv-badge\" style=\"background:" + badge_col +
+            "\">" +
             weaponBadgeLabel(weapon.type) +
             "</span>" +
-            '<span class="inv-name">' + weapon.name + "</span>" +
-            '<span class="inv-stats">DMG ' + weapon.damage +
+            "<span class=\"inv-name\">" + weapon.name + "</span>" +
+            "<span class=\"inv-stats\">DMG " + weapon.damage +
             " / RNG " + weapon.range +
             extra +
             " / " + uses_text + "</span>"
@@ -449,7 +461,7 @@ const renderCommsLog = function (log) {
     el.innerHTML = "<h3>COMMS LOG</h3>";
 
     if (log.length === 0) {
-        el.innerHTML += '<p class="hint">No activity yet.</p>';
+        el.innerHTML += "<p class=\"hint\">No activity yet.</p>";
         return;
     }
 
@@ -481,9 +493,9 @@ const renderStatus = function (game) {
     if (game.winner !== 0) {
 
         status.innerHTML = (
-            '<div class="winner-banner">' +
+            "<div class=\"winner-banner\">" +
             "AGENT-0" + game.winner + " HAS BREACHED THE NETWORK" +
-            '<button id="restart-btn">NEW SESSION</button>' +
+            "<button id=\"restart-btn\">NEW SESSION</button>" +
             "</div>"
         );
 
@@ -517,7 +529,7 @@ const renderStatus = function (game) {
     );
     const respawn_html = (
         respawn_text
-        ? '<div class="respawn-info">' + respawn_text + "</div>"
+        ? "<div class=\"respawn-info\">" + respawn_text + "</div>"
         : ""
     );
     const p1_hp = (
@@ -532,23 +544,34 @@ const renderStatus = function (game) {
     );
 
     status.innerHTML = (
-        '<div class="player-status ' + p1_active + '">' +
+        "<div class=\"player-status " + p1_active + "\">" +
         "<span>AGENT-01</span>" +
-        '<span class="core-hp">SERVER ' + p1_hp + "/20</span>" +
+        "<span class=\"core-hp\">SERVER " + p1_hp + "/20</span>" +
         "</div>" +
-        '<div class="turn-block">' +
+        "<div class=\"turn-block\">" +
         "<div>TURN " + (game.turn_count + 1) + "</div>" +
         "<div>AGENT-0" + game.current_player + " EXEC</div>" +
         respawn_html +
         "</div>" +
-        '<div class="player-status ' + p2_active + '">' +
+        "<div class=\"player-status " + p2_active + "\">" +
         "<span>AGENT-02</span>" +
-        '<span class="core-hp">SERVER ' + p2_hp + "/20</span>" +
+        "<span class=\"core-hp\">SERVER " + p2_hp + "/20</span>" +
         "</div>"
     );
 };
 
 // ─── Main render entry point ─────────────
+
+// renders one full row of tiles – called once per row by renderBoard
+const renderRow = function (board, y, game, onCellClick, reachable_tiles) {
+    let x = 0;
+    while (x < game.board_size) {
+        board.appendChild(
+            renderTile(x, y, game, onCellClick, reachable_tiles)
+        );
+        x += 1;
+    }
+};
 
 const renderBoard = function (game, onCellClick, onWeaponClick, log) {
 
@@ -570,12 +593,10 @@ const renderBoard = function (game, onCellClick, onWeaponClick, log) {
         : []
     );
 
-    for (let y = 0; y < game.board_size; y += 1) {
-        for (let x = 0; x < game.board_size; x += 1) {
-            board.appendChild(
-                renderTile(x, y, game, onCellClick, reachable_tiles)
-            );
-        }
+    let y = 0;
+    while (y < game.board_size) {
+        renderRow(board, y, game, onCellClick, reachable_tiles);
+        y += 1;
     }
 
     renderInventory(game, onWeaponClick || function () {});
@@ -583,4 +604,4 @@ const renderBoard = function (game, onCellClick, onWeaponClick, log) {
     renderStatus(game);
 };
 
-export { renderBoard };
+export {renderBoard};

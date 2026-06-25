@@ -39,12 +39,16 @@ const hasLineOfSight = function (x1, y1, x2, y2, firewalls) {
 
     let dx = Math.abs(x2 - x1);
     let dy = Math.abs(y2 - y1);
-    let sx = (x1 < x2
+    let sx = (
+        x1 < x2
         ? 1
-        : -1);
-    let sy = (y1 < y2
+        : -1
+    );
+    let sy = (
+        y1 < y2
         ? 1
-        : -1);
+        : -1
+    );
     let err = dx - dy;
     let cx = x1;
     let cy = y1;
@@ -101,9 +105,9 @@ const clearStatusEffects = function (game) {
         if (u.owner !== game.current_player) {
             return u;  // dont clear debuffs on the other player's units yet
         }
-        return merge(u, { status: null });
+        return merge(u, {status: null});
     });
-    return merge(game, { units: updated_units });
+    return merge(game, {units: updated_units});
 };
 
 /**
@@ -123,16 +127,20 @@ const processRespawnQueue = function (game) {
 
     game.respawn_queue.forEach(function (entry) {
 
-        const spawn_x = (entry.owner === PLAYER_1
+        const spawn_x = (
+            entry.owner === PLAYER_1
             ? 0
-            : 5);
-        const spawn_y = (entry.owner === PLAYER_1
+            : 5
+        );
+        const spawn_y = (
+            entry.owner === PLAYER_1
             ? 1
-            : 4);
+            : 4
+        );
 
         if (entry.turns_left > 1) {
             still_waiting.push(
-                merge(entry, { turns_left: entry.turns_left - 1 })
+                merge(entry, {turns_left: entry.turns_left - 1})
             );
             return;
         }
@@ -142,7 +150,7 @@ const processRespawnQueue = function (game) {
         });
 
         if (occupied) {
-            still_waiting.push(merge(entry, { turns_left: 1 }));
+            still_waiting.push(merge(entry, {turns_left: 1}));
             return;
         }
 
@@ -158,14 +166,14 @@ const processRespawnQueue = function (game) {
             status: null,
             inventory: [
                 merge(
-                    { type: "ping", id: Date.now() + Math.random() },
+                    {type: "ping", id: Date.now() + Math.random()},
                     WEAPONS.ping
                 )
             ]
         });
     });
 
-    return merge(game, { units: live_units, respawn_queue: still_waiting });
+    return merge(game, {units: live_units, respawn_queue: still_waiting});
 };
 
 /**
@@ -179,10 +187,14 @@ const endTurn = function (game) {
     let next = clearStatusEffects(game);
     next = processRespawnQueue(next);
 
+    const next_player = (
+        next.current_player === PLAYER_1
+        ? PLAYER_2
+        : PLAYER_1
+    );
+
     next = merge(next, {
-        current_player: (next.current_player === PLAYER_1
-            ? PLAYER_2
-            : PLAYER_1),
+        current_player: next_player,
         selected_unit_id: null,
         selected_weapon_index: 0,
         turn_count: next.turn_count + 1
@@ -205,29 +217,31 @@ const endTurn = function (game) {
 // always ensures at least a ping remains in inventory
 const useWeapon = function (unit, weapon_index) {
 
-    const inventory = unit.inventory
-        .map(function (item, i) {
-            if (i !== weapon_index) {
-                return item;
-            }
-            if (item.uses === Infinity) {
-                return item;
-            }
-            return merge(item, { uses: item.uses - 1 });
-        })
-        .filter(function (item) {
-            return item.uses > 0 || item.uses === Infinity;
-        });
+    const tallied = unit.inventory.map(function (item, i) {
+        if (i !== weapon_index) {
+            return item;
+        }
+        if (item.uses === Infinity) {
+            return item;
+        }
+        return merge(item, {uses: item.uses - 1});
+    });
+
+    const inventory = tallied.filter(function (item) {
+        return item.uses > 0 || item.uses === Infinity;
+    });
 
     const fallback_ping = merge(
-        { type: "ping", id: Date.now() + Math.random() },
+        {type: "ping", id: Date.now() + Math.random()},
         WEAPONS.ping
     );
 
     return merge(unit, {
-        inventory: (inventory.length > 0
+        inventory: (
+            inventory.length > 0
             ? inventory
-            : [fallback_ping])
+            : [fallback_ping]
+        )
     });
 };
 
@@ -248,12 +262,14 @@ const getReachableTiles = function (unit, game) {
         active_item.movement_boost &&
         active_item.movement_boost > unit.movement
     );
-    const max_steps = (overclock_active
+    const max_steps = (
+        overclock_active
         ? active_item.movement_boost
-        : unit.movement);
+        : unit.movement
+    );
 
     const visited = {};
-    const queue = [{ x: unit.x, y: unit.y, steps: 0 }];
+    const queue = [{x: unit.x, y: unit.y, steps: 0}];
     const reachable = [];
 
     visited[unit.x + "," + unit.y] = true;
@@ -263,10 +279,10 @@ const getReachableTiles = function (unit, game) {
     const expandFrom = function (current) {
 
         const dirs = [
-            { x: current.x + 1, y: current.y },
-            { x: current.x - 1, y: current.y },
-            { x: current.x,     y: current.y + 1 },
-            { x: current.x,     y: current.y - 1 }
+            {x: current.x + 1, y: current.y},
+            {x: current.x - 1, y: current.y},
+            {x: current.x, y: current.y + 1},
+            {x: current.x, y: current.y - 1}
         ];
 
         dirs.forEach(function (n) {
@@ -297,7 +313,7 @@ const getReachableTiles = function (unit, game) {
             }
 
             visited[key] = true;
-            queue.push({ x: n.x, y: n.y, steps: current.steps + 1 });
+            queue.push({x: n.x, y: n.y, steps: current.steps + 1});
         });
     };
 
@@ -306,7 +322,7 @@ const getReachableTiles = function (unit, game) {
         const current = queue.shift();
 
         if (current.steps > 0) {
-            reachable.push({ x: current.x, y: current.y });
+            reachable.push({x: current.x, y: current.y});
         }
 
         if (current.steps < max_steps) {
@@ -386,17 +402,21 @@ const moveSelectedUnit = function (x, y, game) {
     );
 
     let updated_units = game.units.map(function (u) {
-        return (u.id === unit.id
-            ? merge(u, { x: x, y: y })
-            : u);
+        return (
+            u.id === unit.id
+            ? merge(u, {x: x, y: y})
+            : u
+        );
     });
 
     // consume the overclock if it was used for extra distance
     if (overclock_active && distance > unit.movement) {
         updated_units = updated_units.map(function (u) {
-            return (u.id === unit.id
+            return (
+                u.id === unit.id
                 ? useWeapon(u, game.selected_weapon_index)
-                : u);
+                : u
+            );
         });
     }
 
@@ -405,9 +425,11 @@ const moveSelectedUnit = function (x, y, game) {
 
     if (drop) {
         updated_units = updated_units.map(function (u) {
-            return (u.id === unit.id
+            return (
+                u.id === unit.id
                 ? addWeaponToInventory(u, drop.type)
-                : u);
+                : u
+            );
         });
         updated_drops = game.weapon_drops.filter(function (d) {
             return d.id !== drop.id;
@@ -415,7 +437,7 @@ const moveSelectedUnit = function (x, y, game) {
     }
 
     return endTurn(
-        merge(game, { units: updated_units, weapon_drops: updated_drops })
+        merge(game, {units: updated_units, weapon_drops: updated_drops})
     );
 };
 
@@ -473,7 +495,7 @@ const attackCore = function (x, y, game) {
         if (c.x !== x || c.y !== y) {
             return c;
         }
-        return merge(c, { hp: Math.max(0, c.hp - weapon.damage) });
+        return merge(c, {hp: Math.max(0, c.hp - weapon.damage)});
     });
 
     const destroyed = updated_cores.find(function (c) {
@@ -481,17 +503,23 @@ const attackCore = function (x, y, game) {
     });
 
     const updated_units = game.units.map(function (u) {
-        return (u.id === unit.id
+        return (
+            u.id === unit.id
             ? useWeapon(u, game.selected_weapon_index)
-            : u);
+            : u
+        );
     });
+
+    const winner = (
+        destroyed
+        ? unit.owner
+        : EMPTY
+    );
 
     return endTurn(merge(game, {
         cores: updated_cores,
         units: updated_units,
-        winner: (destroyed
-            ? unit.owner
-            : EMPTY)
+        winner: winner
     }));
 };
 
@@ -576,7 +604,7 @@ const attackUnit = function (x, y, game) {
             );
             if (updated_target_inventory.length === 0) {
                 updated_target_inventory = [merge(
-                    { type: "ping", id: Date.now() + Math.random() },
+                    {type: "ping", id: Date.now() + Math.random()},
                     WEAPONS.ping
                 )];
             }
@@ -588,15 +616,17 @@ const attackUnit = function (x, y, game) {
 
     if (new_hp <= 0) {
 
-        updated_units = game.units
-            .filter(function (u) {
-                return u.id !== target.id;
-            })
-            .map(function (u) {
-                return (u.id === attacker.id
-                    ? updated_attacker
-                    : u);
-            });
+        const survivors = game.units.filter(function (u) {
+            return u.id !== target.id;
+        });
+
+        updated_units = survivors.map(function (u) {
+            return (
+                u.id === attacker.id
+                ? updated_attacker
+                : u
+            );
+        });
 
         updated_queue.push({
             owner: target.owner,
@@ -629,19 +659,19 @@ const attackUnit = function (x, y, game) {
             if (u.owner === attacker.owner || dist > weapon.range) {
                 return u;
             }
-            return merge(u, { status: "slowed" });
+            return merge(u, {status: "slowed"});
         });
     }
 
     return endTurn(
-        merge(game, { units: updated_units, respawn_queue: updated_queue })
+        merge(game, {units: updated_units, respawn_queue: updated_queue})
     );
 };
 
 /**
  * Randomly place a data-cache on the grid every 5 turns.
- * Accepts an optional random_fn so the function can be tested deterministically
- * without relying on Math.random.
+ * Accepts an optional random_fn so the function can be tested
+ * deterministically without relying on Math.random.
  * @param {GameState} game
  * @param {Function} [random_fn=Math.random]
  * @returns {GameState}
@@ -688,7 +718,7 @@ const spawnWeaponDrop = function (game, random_fn) {
 
     return merge(game, {
         weapon_drops: game.weapon_drops.concat([
-            { id: Date.now() + rand(), type: type, x: x, y: y }
+            {id: Date.now() + rand(), type: type, x: x, y: y}
         ])
     });
 };

@@ -64,7 +64,7 @@ const WEAPONS = {
 
 const createWeapon = function (type) {
     return merge(
-        { id: Date.now() + Math.random(), type: type },
+        {id: Date.now() + Math.random(), type: type},
         WEAPONS[type]
     );
 };
@@ -90,8 +90,8 @@ const generateFirewalls = function (units, cores, board_size) {
 
     // buffer tiles around each spawn so the game isn't immediately blocked
     const buffer = [
-        { x: 1, y: 0 }, { x: 1, y: 1 }, { x: 0, y: 2 },
-        { x: 4, y: 5 }, { x: 4, y: 4 }, { x: 5, y: 3 }
+        {x: 1, y: 0}, {x: 1, y: 1}, {x: 0, y: 2},
+        {x: 4, y: 5}, {x: 4, y: 4}, {x: 5, y: 3}
     ];
 
     buffer.forEach(function (b) {
@@ -112,7 +112,7 @@ const generateFirewalls = function (units, cores, board_size) {
 
         if (!off_limit_keys[key] && !wall_keys[key]) {
             wall_keys[key] = true;
-            walls.push({ x: x, y: y });
+            walls.push({x: x, y: y});
         }
     }
 
@@ -126,8 +126,8 @@ const generateFirewalls = function (units, cores, board_size) {
 const createGame = function () {
 
     const cores = [
-        { owner: PLAYER_1, x: 0, y: 0, hp: 20 },
-        { owner: PLAYER_2, x: 5, y: 5, hp: 20 }
+        {owner: PLAYER_1, x: 0, y: 0, hp: 20},
+        {owner: PLAYER_2, x: 5, y: 5, hp: 20}
     ];
 
     const units = [
@@ -260,7 +260,7 @@ const selectUnit = function (unit_id, game) {
  * @returns {GameState}
  */
 const selectWeapon = function (index, game) {
-    return merge(game, { selected_weapon_index: index });
+    return merge(game, {selected_weapon_index: index});
 };
 
 /**
@@ -275,7 +275,7 @@ const addWeaponToInventory = function (unit, weapon_type) {
         inventory.shift();  // drop oldest – FIFO
     }
 
-    return merge(unit, { inventory: inventory });
+    return merge(unit, {inventory: inventory});
 };
 
 export {

@@ -55,7 +55,6 @@ const playBotTurn = function (game) {
 
     if (!bot) {
         return endTurn(game);  // bot's agent is dead/respawning
-
     }
 
     let next = selectUnit(bot.id, game);
@@ -110,16 +109,20 @@ const playBotTurn = function (game) {
             target.x,
             target.y
         );
-        return (tile_dist < closest_dist
+        return (
+            tile_dist < closest_dist
             ? tile
-            : closest);
+            : closest
+        );
     }, reachable[0]);
 
     const moved = moveSelectedUnit(best_tile.x, best_tile.y, next);
 
-    return (moved === next
+    return (
+        moved === next
         ? endTurn(next)
-        : moved);
+        : moved
+    );
 };
 
 export { playBotTurn };

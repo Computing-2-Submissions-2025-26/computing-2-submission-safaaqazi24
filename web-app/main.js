@@ -82,12 +82,16 @@ const describeAttack = function (target_label) {
     const attacker = game.units.find(function (u) {
         return u.id === game.selected_unit_id;
     });
-    const weapon = (attacker
+    const weapon = (
+        attacker
         ? attacker.inventory[game.selected_weapon_index]
-        : null);
-    const w_name = (weapon
+        : null
+    );
+    const w_name = (
+        weapon
         ? weapon.name
-        : "weapon");
+        : "weapon"
+    );
     return (
         "AG-0" + game.current_player + " fired " + w_name +
         " at " + target_label

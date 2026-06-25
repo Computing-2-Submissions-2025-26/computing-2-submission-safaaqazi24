@@ -19,14 +19,18 @@ import { getReachableTiles } from "./game-rules.js";
 // added the visor rect so it looks like a hacker character
 const svgAgent = function (color, highlight_color, status) {
 
-    const dim = (status === "slowed"
+    const dim = (
+        status === "slowed"
         ? ' opacity="0.5"'
-        : "");
+        : ""
+    );
 
-    const slowed_bar = (status === "slowed"
+    const slowed_bar = (
+        status === "slowed"
         ? '<rect x="5" y="3" width="34" height="6" rx="2"' +
             ' fill="#ff8800" opacity="0.8"/>'
-        : "");
+        : ""
+    );
 
     return (
         '<svg width="44" height="44" viewBox="0 0 44 44"' +
@@ -221,12 +225,17 @@ const renderTile = function (x, y, game, onCellClick, reachable_tiles) {
 
     // ── server ─────────────
     if (core) {
-        const border = (core.owner === PLAYER_1
+        const border = (
+            core.owner === PLAYER_1
             ? "#3b9dff"
-            : "#ff4d4d");
-        tile.classList.add(core.owner === PLAYER_1
+            : "#ff4d4d"
+        );
+        const core_class = (
+            core.owner === PLAYER_1
             ? "core-p1"
-            : "core-p2");
+            : "core-p2"
+        );
+        tile.classList.add(core_class);
 
         const hp_pct = Math.max(0, core.hp / 20 * 100);
 
@@ -247,19 +256,28 @@ const renderTile = function (x, y, game, onCellClick, reachable_tiles) {
     if (unit) {
 
         const is_selected = unit.id === game.selected_unit_id;
-        const color = (unit.owner === PLAYER_1
+        const color = (
+            unit.owner === PLAYER_1
             ? "#1a3d6e"
-            : "#6e1a1a");
-        const hi_color = (unit.owner === PLAYER_1
+            : "#6e1a1a"
+        );
+        const hi_color = (
+            unit.owner === PLAYER_1
             ? "#3b9dff"
-            : "#ff4d4d");
-        const label = (unit.owner === PLAYER_1
+            : "#ff4d4d"
+        );
+        const label = (
+            unit.owner === PLAYER_1
             ? "AG-01"
-            : "AG-02");
-
-        tile.classList.add(unit.owner === PLAYER_1
+            : "AG-02"
+        );
+        const unit_class = (
+            unit.owner === PLAYER_1
             ? "unit-p1"
-            : "unit-p2");
+            : "unit-p2"
+        );
+
+        tile.classList.add(unit_class);
 
         if (is_selected) {
             tile.classList.add("selected");
@@ -269,19 +287,25 @@ const renderTile = function (x, y, game, onCellClick, reachable_tiles) {
         const weapon = (
             unit.inventory[game.selected_weapon_index] || unit.inventory[0]
         );
-        const badge_col = (weapon
+        const badge_col = (
+            weapon
             ? weaponBadgeColor(weapon.type)
-            : "#4a9fff");
-        const badge_lbl = (weapon
+            : "#4a9fff"
+        );
+        const badge_lbl = (
+            weapon
             ? weaponBadgeLabel(weapon.type)
-            : "PNG");
+            : "PNG"
+        );
 
         const hp_pct = unit.hp / unit.max_hp * 100;
 
         // green blink dot if it's this unit's turn to act
-        const active_dot = (unit.owner === game.current_player
+        const active_dot = (
+            unit.owner === game.current_player
             ? '<div class="active-dot"></div>'
-            : "");
+            : ""
+        );
 
         const hp_bar = (
             '<div class="unit-hp-bar"><div class="unit-hp-fill"' +
@@ -310,9 +334,11 @@ const renderTile = function (x, y, game, onCellClick, reachable_tiles) {
             svgCache() +
             '<div class="drop-label" style="color:' +
             weaponBadgeColor(drop.type) + '">' +
-            (w
+            (
+                w
                 ? w.name
-                : drop.type) +
+                : drop.type
+            ) +
             "</div>"
         );
         tile.addEventListener("click", click_handler);
@@ -360,18 +386,25 @@ const renderInventory = function (game, onWeaponClick) {
             btn.classList.add("active");
         }
 
-        const uses_text = (weapon.uses === Infinity
+        const plural = (
+            weapon.uses !== 1
+            ? "s"
+            : ""
+        );
+        const uses_text = (
+            weapon.uses === Infinity
             ? "inf"
-            : weapon.uses + " use" + (weapon.uses !== 1
-                ? "s"
-                : ""));
+            : weapon.uses + " use" + plural
+        );
 
         const badge_col = weaponBadgeColor(weapon.type);
 
         // show area-effect note for emp
-        const extra = (weapon.type === "emp"
+        const extra = (
+            weapon.type === "emp"
             ? " / AOE"
-            : "");
+            : ""
+        );
 
         btn.innerHTML = (
             '<span class="inv-badge" style="background:' + badge_col +
@@ -463,22 +496,36 @@ const renderStatus = function (game) {
         );
     });
 
-    const p1_active = (game.current_player === PLAYER_1
+    const p1_active = (
+        game.current_player === PLAYER_1
         ? "active-p1"
-        : "");
-    const p2_active = (game.current_player === PLAYER_2
+        : ""
+    );
+    const p2_active = (
+        game.current_player === PLAYER_2
         ? "active-p2"
-        : "");
-    const respawn_html = (respawn_text
+        : ""
+    );
+    const respawn_html = (
+        respawn_text
         ? '<div class="respawn-info">' + respawn_text + "</div>"
-        : "");
+        : ""
+    );
+    const p1_hp = (
+        p1_core
+        ? p1_core.hp
+        : 0
+    );
+    const p2_hp = (
+        p2_core
+        ? p2_core.hp
+        : 0
+    );
 
     status.innerHTML = (
         '<div class="player-status ' + p1_active + '">' +
         "<span>AGENT-01</span>" +
-        '<span class="core-hp">SERVER ' + (p1_core
-            ? p1_core.hp
-            : 0) + "/20</span>" +
+        '<span class="core-hp">SERVER ' + p1_hp + "/20</span>" +
         "</div>" +
         '<div class="turn-block">' +
         "<div>TURN " + (game.turn_count + 1) + "</div>" +
@@ -487,9 +534,7 @@ const renderStatus = function (game) {
         "</div>" +
         '<div class="player-status ' + p2_active + '">' +
         "<span>AGENT-02</span>" +
-        '<span class="core-hp">SERVER ' + (p2_core
-            ? p2_core.hp
-            : 0) + "/20</span>" +
+        '<span class="core-hp">SERVER ' + p2_hp + "/20</span>" +
         "</div>"
     );
 };

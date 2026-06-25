@@ -53,21 +53,21 @@ const svgAgent = function (color, highlight_color, status) {
 // server rack – horizontal bands with a small LED dot
 const svgServer = function (border_color) {
     return (
-        '<svg width="48" height="48" viewBox="0 0 48 48"' +
-        ' xmlns="http://www.w3.org/2000/svg">' +
-        '<rect x="4" y="5" width="40" height="38" rx="3"' +
-        ' fill="#0b1a2e" stroke="' + border_color + '" stroke-width="1.5"/>' +
+        "<svg width='48' height='48' viewBox='0 0 48 48'" +
+        " xmlns='http://www.w3.org/2000/svg'>" +
+        "<rect x='4' y='5' width='40' height='38' rx='3'" +
+        " fill='#0b1a2e' stroke='" + border_color + "' stroke-width='1.5'/>" +
         // rack slots
-        '<rect x="8" y="11" width="26" height="5" rx="1" fill="' +
-        border_color + '" opacity="0.45"/>' +
-        '<rect x="8" y="20" width="26" height="5" rx="1" fill="' +
-        border_color + '" opacity="0.45"/>' +
-        '<rect x="8" y="29" width="26" height="5" rx="1" fill="' +
-        border_color + '" opacity="0.45"/>' +
+        "<rect x='8' y='11' width='26' height='5' rx='1' fill='" +
+        border_color + "' opacity='0.45'/>" +
+        "<rect x='8' y='20' width='26' height='5' rx='1' fill='" +
+        border_color + "' opacity='0.45'/>" +
+        "<rect x='8' y='29' width='26' height='5' rx='1' fill='" +
+        border_color + "' opacity='0.45'/>" +
         // LED indicators
-        '<circle cx="38" cy="13" r="2.5" fill="#00ff88"/>' +
-        '<circle cx="38" cy="22" r="2.5" fill="#00ff88" opacity="0.5"/>' +
-        '<circle cx="38" cy="31" r="2.5" fill="#ff4444" opacity="0.4"/>' +
+        "<circle cx='38' cy='13' r='2.5' fill='#00ff88'/>" +
+        "<circle cx='38' cy='22' r='2.5' fill='#00ff88' opacity='0.5'/>" +
+        "<circle cx='38' cy='31' r='2.5' fill='#ff4444' opacity='0.4'/>" +
         "</svg>"
     );
 };
@@ -75,12 +75,12 @@ const svgServer = function (border_color) {
 // USB drive shape for data-caches
 const svgCache = function () {
     return (
-        '<svg width="38" height="38" viewBox="0 0 38 38"' +
-        ' xmlns="http://www.w3.org/2000/svg">' +
-        '<rect x="12" y="18" width="14" height="16" rx="2" fill="#ffe600"/>' +
-        '<rect x="15" y="9" width="8" height="11" rx="1" fill="#ccb800"/>' +
-        '<rect x="17" y="4" width="4" height="7" rx="1" fill="#888"/>' +
-        '<rect x="15" y="22" width="8" height="4" rx="1" fill="#aa9900"/>' +
+        "<svg width='38' height='38' viewBox='0 0 38 38'" +
+        " xmlns='http://www.w3.org/2000/svg'>" +
+        "<rect x='12' y='18' width='14' height='16' rx='2' fill='#ffe600'/>" +
+        "<rect x='15' y='9' width='8' height='11' rx='1' fill='#ccb800'/>" +
+        "<rect x='17' y='4' width='4' height='7' rx='1' fill='#888'/>" +
+        "<rect x='15' y='22' width='8' height='4' rx='1' fill='#aa9900'/>" +
         "</svg>"
     );
 };
@@ -88,32 +88,32 @@ const svgCache = function () {
 // firewall tile – brick-style with diagonal cross
 const svgFirewall = function () {
 
-    const brick = ' rx="1" fill="none" stroke="#8b1a00" stroke-width="1.2"/>';
+    const brick = " rx='1' fill='none' stroke='#8b1a00' stroke-width='1.2'/>";
 
     return (
-        '<svg width="86" height="86" viewBox="0 0 86 86"' +
-        ' xmlns="http://www.w3.org/2000/svg">' +
-        '<rect width="86" height="86" fill="#1a0400"/>' +
+        "<svg width='86' height='86' viewBox='0 0 86 86'" +
+        " xmlns='http://www.w3.org/2000/svg'>" +
+        "<rect width='86' height='86' fill='#1a0400'/>" +
         // brick rows – offset every other row
-        '<rect x="1"  y="1"  width="40" height="18"' + brick +
-        '<rect x="43" y="1"  width="42" height="18"' + brick +
-        '<rect x="1"  y="21" width="20" height="18"' + brick +
-        '<rect x="23" y="21" width="40" height="18"' + brick +
-        '<rect x="65" y="21" width="20" height="18"' + brick +
-        '<rect x="1"  y="41" width="40" height="18"' + brick +
-        '<rect x="43" y="41" width="42" height="18"' + brick +
-        '<rect x="1"  y="61" width="20" height="18"' + brick +
-        '<rect x="23" y="61" width="40" height="18"' + brick +
-        '<rect x="65" y="61" width="20" height="18"' + brick +
+        "<rect x='1'  y='1'  width='40' height='18'" + brick +
+        "<rect x='43' y='1'  width='42' height='18'" + brick +
+        "<rect x='1'  y='21' width='20' height='18'" + brick +
+        "<rect x='23' y='21' width='40' height='18'" + brick +
+        "<rect x='65' y='21' width='20' height='18'" + brick +
+        "<rect x='1'  y='41' width='40' height='18'" + brick +
+        "<rect x='43' y='41' width='42' height='18'" + brick +
+        "<rect x='1'  y='61' width='20' height='18'" + brick +
+        "<rect x='23' y='61' width='40' height='18'" + brick +
+        "<rect x='65' y='61' width='20' height='18'" + brick +
         // diagonal cross
-        '<line x1="8" y1="8" x2="78" y2="78" stroke="#cc2200"' +
-        ' stroke-width="1.5" opacity="0.5"/>' +
-        '<line x1="78" y1="8" x2="8" y2="78" stroke="#cc2200"' +
-        ' stroke-width="1.5" opacity="0.5"/>' +
+        "<line x1='8' y1='8' x2='78' y2='78' stroke='#cc2200'" +
+        " stroke-width='1.5' opacity='0.5'/>" +
+        "<line x1='78' y1='8' x2='8' y2='78' stroke='#cc2200'" +
+        " stroke-width='1.5' opacity='0.5'/>" +
         // label
-        '<text x="43" y="50" text-anchor="middle" fill="#cc2200"' +
-        ' font-size="8" font-family="monospace" letter-spacing="2"' +
-        ' opacity="0.9">FIREWALL</text>' +
+        "<text x='43' y='50' text-anchor='middle' fill='#cc2200'" +
+        " font-size='8' font-family='monospace' letter-spacing='2'" +
+        " opacity='0.9'>FIREWALL</text>" +
         "</svg>"
     );
 };

@@ -9,7 +9,7 @@ import {
     PLAYER_2
 } from "./game-state.js";
 
-import { getReachableTiles } from "./game-rules.js";
+import {getReachableTiles} from "./game-rules.js";
 
 // ─── SVG helpers ────────────────────────────────────────
 // Each returns a raw SVG string to drop inside a tile's innerHTML.
@@ -27,23 +27,23 @@ const svgAgent = function (color, highlight_color, status) {
 
     const slowed_bar = (
         status === "slowed"
-        ? "<rect x=\"5\" y=\"3\" width=\"34\" height=\"6\" rx=\"2\"" +
-        "' fill=\"#ff8800\" opacity=\"0.8\"/>"
+        ? "<rect x='5' y='3' width='34' height='6' rx='2'" +
+            " fill='#ff8800' opacity='0.8'/>"
         : ""
     );
 
     return (
-        "<svg width=\"44\" height=\"44\" viewBox=\"0 0 44 44\"'" +
-        "xmlns="http://www.w3.org/2000/svg"' + dim + ">" +
+        "<svg width='44' height='44' viewBox='0 0 44 44'" +
+        " xmlns='http://www.w3.org/2000/svg'" + dim + ">" +
         // hex body
-        "<polygon points="22,3 39,12.5 39,31.5 22,41 5,31.5 5,12.5"' +
-        ' fill="' + color + '" stroke="' + highlight_color + '" stroke-width="1.5"/>' +
-        '" stroke-width="1.5"/>' +
+        "<polygon points='22,3 39,12.5 39,31.5 22,41 5,31.5 5,12.5'" +
+        " fill='" + color + "' stroke='" + highlight_color +
+        "' stroke-width='1.5'/>" +
         // visor strip
-        '<rect x="13" y="17" width="18" height="6" rx="2"' +
-        ' fill="rgba(0,0,0,0.6)"/>' +
-        '<rect x="14" y="18" width="16" height="4" rx="1.5" fill="' +
-        highlight_color + '" opacity="0.9"/>' +
+        "<rect x='13' y='17' width='18' height='6' rx='2'" +
+        " fill='rgba(0,0,0,0.6)'/>" +
+        "<rect x='14' y='18' width='16' height='4' rx='1.5' fill='" +
+        highlight_color + "' opacity='0.9'/>" +
         // slowed indicator – orange tint bar at top
         slowed_bar +
         "</svg>"

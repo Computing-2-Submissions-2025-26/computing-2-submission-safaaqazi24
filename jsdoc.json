@@ -7,7 +7,7 @@
             "web-app/Module.js",
             "web-app/game-state.js",
             "web-app/game-rules.js",
-            "web-app/bot-ai.js",
+            "web-app/bot.js",
             "web-app/render-board.js"
         ],
         "includePattern": "\\.js$",

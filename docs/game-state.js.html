@@ -60,9 +60,15 @@ const INVENTORY_LIMIT = 3;
 const FIREWALL_COUNT = 4;  // how many wall tiles to scatter on the board
 const RESPAWN_DELAY = 3;   // turns until a dead agent comes back
 
+// jslint forbids object/array spread syntax (it predates ES2018) – this
+// helper does the same merge job without "..." anywhere in the codebase
+const merge = function (base, changes) {
+    return Object.assign({}, base, changes);
+};
+
 // weapon definitions – damage, range, uses
 // ping is the fallback (infinite use, melee only)
-// overclock is a movement item – no damage, just lets you sprint up to 4 tiles
+// overclock is a movement item – no damage, lets you sprint up to 4 tiles
 const WEAPONS = {
     ping: {
         name: "Ping",
@@ -92,7 +98,7 @@ const WEAPONS = {
         name: "Overclock",
         damage: 0,
         range: 0,
-        movement_boost: 4,  // lets the agent move up to 4 tiles, consumed on use
+        movement_boost: 4,  // lets the agent sprint 4 tiles, consumed on use
         uses: 1
     },
     emp: {
@@ -104,11 +110,10 @@ const WEAPONS = {
 };
 
 const createWeapon = function (type) {
-    return {
-        id: Date.now() + Math.random(),
-        type: type,
-        ...WEAPONS[type]
-    };
+    return merge(
+        {id: Date.now() + Math.random(), type: type},
+        WEAPONS[type]
+    );
 };
 
 /**
@@ -118,27 +123,29 @@ const createWeapon = function (type) {
  */
 const generateFirewalls = function (units, cores, board_size) {
 
-    // build a list of tiles we must keep clear
-    const off_limits = [];
+    // build a lookup of tiles we must keep clear – a plain object key
+    // check avoids creating a new .some() closure on every loop attempt
+    const off_limit_keys = {};
 
     units.forEach(function (u) {
-        off_limits.push({ x: u.x, y: u.y });
+        off_limit_keys[u.x + "," + u.y] = true;
     });
 
     cores.forEach(function (c) {
-        off_limits.push({ x: c.x, y: c.y });
+        off_limit_keys[c.x + "," + c.y] = true;
     });
 
     // buffer tiles around each spawn so the game isn't immediately blocked
     const buffer = [
-        { x: 1, y: 0 }, { x: 1, y: 1 }, { x: 0, y: 2 },
-        { x: 4, y: 5 }, { x: 4, y: 4 }, { x: 5, y: 3 }
+        {x: 1, y: 0}, {x: 1, y: 1}, {x: 0, y: 2},
+        {x: 4, y: 5}, {x: 4, y: 4}, {x: 5, y: 3}
     ];
 
     buffer.forEach(function (b) {
-        off_limits.push(b);
+        off_limit_keys[b.x + "," + b.y] = true;
     });
 
+    const wall_keys = {};
     const walls = [];
     let tries = 0;
 
@@ -148,17 +155,11 @@ const generateFirewalls = function (units, cores, board_size) {
 
         const x = Math.floor(Math.random() * board_size);
         const y = Math.floor(Math.random() * board_size);
+        const key = x + "," + y;
 
-        const taken = off_limits.some(function (t) {
-            return t.x === x &amp;&amp; t.y === y;
-        });
-
-        const already = walls.some(function (w) {
-            return w.x === x &amp;&amp; w.y === y;
-        });
-
-        if (!taken &amp;&amp; !already) {
-            walls.push({ x: x, y: y });
+        if (!off_limit_keys[key] &amp;&amp; !wall_keys[key]) {
+            wall_keys[key] = true;
+            walls.push({x: x, y: y});
         }
     }
 
@@ -172,8 +173,8 @@ const generateFirewalls = function (units, cores, board_size) {
 const createGame = function () {
 
     const cores = [
-        { owner: PLAYER_1, x: 0, y: 0, hp: 20 },
-        { owner: PLAYER_2, x: 5, y: 5, hp: 20 }
+        {owner: PLAYER_1, x: 0, y: 0, hp: 20},
+        {owner: PLAYER_2, x: 5, y: 5, hp: 20}
     ];
 
     const units = [
@@ -290,13 +291,13 @@ const getFirewallAtPosition = function (x, y, game) {
  * @returns {GameState}
  */
 const selectUnit = function (unit_id, game) {
-    return {
-        ...game,
-        selected_unit_id:
+    return merge(game, {
+        selected_unit_id: (
             game.selected_unit_id === unit_id
             ? null
             : unit_id
-    };
+        )
+    });
 };
 
 /**
@@ -306,7 +307,7 @@ const selectUnit = function (unit_id, game) {
  * @returns {GameState}
  */
 const selectWeapon = function (index, game) {
-    return { ...game, selected_weapon_index: index };
+    return merge(game, {selected_weapon_index: index});
 };
 
 /**
@@ -315,13 +316,13 @@ const selectWeapon = function (index, game) {
  */
 const addWeaponToInventory = function (unit, weapon_type) {
 
-    const inventory = [...unit.inventory, createWeapon(weapon_type)];
+    const inventory = unit.inventory.concat([createWeapon(weapon_type)]);
 
     if (inventory.length > INVENTORY_LIMIT) {
         inventory.shift();  // drop oldest – FIFO
     }
 
-    return { ...unit, inventory: inventory };
+    return merge(unit, {inventory: inventory});
 };
 
 export {
@@ -332,6 +333,7 @@ export {
     INVENTORY_LIMIT,
     WEAPONS,
     RESPAWN_DELAY,
+    merge,
     createWeapon,
     createGame,
     getDistance,
@@ -356,7 +358,7 @@ export {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Thu Jun 25 2026 11:59:55 GMT+0100 (British Summer Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Thu Jun 25 2026 13:01:24 GMT+0100 (British Summer Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

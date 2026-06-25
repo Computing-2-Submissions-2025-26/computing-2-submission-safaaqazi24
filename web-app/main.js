@@ -19,7 +19,7 @@ import {
 
 import {
     playBotTurn
-} from "./bot-ai.js";
+} from "./bot.js";
 
 let game = createGame();
 
